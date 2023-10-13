@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import base64
 from dataclasses import dataclass
 from typing import Final
+from algosdk import util
+from eth_account import Account, messages
 
 
 @dataclass
@@ -25,8 +27,31 @@ class SettlementTicket(OrderData):
 
 class MessageSigner(ABC):
 	@abstractmethod
-	def signMessage(message: bytes) -> bytes:
+	def address() -> str:
 		pass
+
+	@abstractmethod
+	def signMessage(self, message: bytes) -> str:
+		pass
+
+
+class AlgorandMessageSigner(MessageSigner):
+	def __init__(self, private_key: str) -> None:
+		self.private_key = private_key
+		super().__init__()
+
+	def signMessage(self, message: bytes) -> str:
+		return util.sign_bytes(message, self.private_key)
+
+
+class Web3MessageSigner(MessageSigner):
+	def __init__(self, private_key: str) -> None:
+		self.private_key = private_key
+		super().__init__()
+
+	def signMessage(self, message: bytes) -> str:
+		msg = messages.encode_defunct(message)
+		return Account.sign_message(msg, private_key=self.private_key)
 
 
 ORDER_OPERATION: Final[int] = 6
@@ -36,7 +61,19 @@ def sign_order_data(
 	order_data: OrderData,
 	signer: MessageSigner,
 ) -> SettlementTicket:
-	pass
+	return SettlementTicket(
+		order_data.account,
+		order_data.sellSlotId,
+		order_data.buySlotId,
+		order_data.sellAmount,
+		order_data.buyAmount,
+		order_data.maxSellAmountFromPool,
+		order_data.maxBuyAmountToPool,
+		order_data.expiresOn,
+		order_data.nonce,
+		signer.address(),
+		signer.signMessage(encode_order_data(order_data)),
+	)
 
 def encode_order_data(
 	order_data: OrderData,
