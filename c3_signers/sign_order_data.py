@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import base64
 from dataclasses import dataclass
 from typing import Final
-from algosdk import util
+from algosdk import util, account
 from eth_account import Account, messages
 
 
@@ -27,7 +27,11 @@ class SettlementTicket(OrderData):
 
 class MessageSigner(ABC):
 	@abstractmethod
-	def address() -> str:
+	def account_id(self) -> str:
+		pass
+
+	@abstractmethod
+	def address(self) -> bytes:
 		pass
 
 	@abstractmethod
@@ -40,6 +44,12 @@ class AlgorandMessageSigner(MessageSigner):
 		self.private_key = private_key
 		super().__init__()
 
+	def account_id(self) -> str:
+		return "C3_" + account.address_from_private_key(self.private_key)
+
+	def address(self) -> bytes:
+		return util.encoding.decode_address(account.address_from_private_key(self.private_key))
+
 	def signMessage(self, message: bytes) -> str:
 		return util.sign_bytes(message, self.private_key)
 
@@ -48,6 +58,14 @@ class Web3MessageSigner(MessageSigner):
 	def __init__(self, private_key: str) -> None:
 		self.private_key = private_key
 		super().__init__()
+
+	def account_id(self) -> str:
+		# FIXME: is this correct?
+		return "C3_" + Account.from_key(self.private_key).address()
+
+	def address(self) -> bytes:
+		# FIXME: is this correct?
+		return Account.from_key(self.private_key).address()
 
 	def signMessage(self, message: bytes) -> str:
 		msg = messages.encode_defunct(message)
