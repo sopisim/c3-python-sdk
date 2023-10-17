@@ -22,7 +22,7 @@ def test_encode_order_data():
 	# Base64: BrIparUHhf7caGW/kNP5yjTxAiFsjN4naMdUfTHZy976AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA=
 
 	order_data = OrderData(
-		"vmvCyFq7tu+IeI3wGFBwo9t0wNrXRowAPrxKLPIN9Ns=",
+		"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
 		42,
 		23,
 		10000000,
@@ -33,10 +33,8 @@ def test_encode_order_data():
 		1234,
 	)
 
-	expected_encoding = b'BrIparUHhf7caGW/kNP5yjTxAiFsjN4naMdUfTHZy976AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA='
+	expected_encoding = b'BgABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fAAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA='
 
 	actual_encoding = base64.b64encode(encode_order_data(order_data))
-	print(expected_encoding)
-	print(actual_encoding)
 
 	assert actual_encoding == expected_encoding
