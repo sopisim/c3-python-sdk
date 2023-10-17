@@ -1,5 +1,5 @@
 import base64
-from c3_signers.sign_order_data import OrderData, encode_order_data
+from c3_signers.encode import OrderData, encode_order_data
 
 
 def test_encode_order_data():
