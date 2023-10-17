@@ -1,3 +1,4 @@
+import base64
 from c3_signers.sign_order_data import OrderData, encode_order_data
 
 
@@ -32,8 +33,10 @@ def test_encode_order_data():
 		1234,
 	)
 
-	expected_encoding = "BrIparUHhf7caGW/kNP5yjTxAiFsjN4naMdUfTHZy976AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA="
+	expected_encoding = b'BrIparUHhf7caGW/kNP5yjTxAiFsjN4naMdUfTHZy976AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA='
 
-	assert encode_order_data(order_data) == expected_encoding
+	actual_encoding = base64.b64encode(encode_order_data(order_data))
+	print(expected_encoding)
+	print(actual_encoding)
 
-test_encode_order_data()
+	assert actual_encoding == expected_encoding

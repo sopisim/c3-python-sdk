@@ -105,14 +105,14 @@ def encode_order_data(
 	encoded.extend(account)
 
 	# Encode remaining fields
-	encoded.extend(order_data.nonce.to_bytes(8, 'big', False))
-	encoded.extend(order_data.expiresOn.to_bytes(8, 'big', False))
-	encoded.extend(order_data.sellSlotId.to_bytes(1, 'big', False))
-	encoded.extend(order_data.sellAmount.to_bytes(8, 'big', False))
-	encoded.extend(order_data.maxSellAmountFromPool.to_bytes(8, 'big', False))
-	encoded.extend(order_data.buySlotId.to_bytes(1, 'big', False))
-	encoded.extend(order_data.buyAmount.to_bytes(8, 'big', False))
-	encoded.extend(order_data.maxBuyAmountToPool.to_bytes(8, 'big', False))
+	encoded.extend(order_data.nonce.to_bytes(8, 'big', signed=False))
+	encoded.extend(order_data.expiresOn.to_bytes(8, 'big', signed=False))
+	encoded.extend(order_data.sellSlotId.to_bytes(1, 'big', signed=False))
+	encoded.extend(order_data.sellAmount.to_bytes(8, 'big', signed=False))
+	encoded.extend(order_data.maxSellAmountFromPool.to_bytes(8, 'big', signed=False))
+	encoded.extend(order_data.buySlotId.to_bytes(1, 'big', signed=False))
+	encoded.extend(order_data.buyAmount.to_bytes(8, 'big', signed=False))
+	encoded.extend(order_data.maxBuyAmountToPool.to_bytes(8, 'big', signed=False))
 	
 	# Return
 	return encoded
