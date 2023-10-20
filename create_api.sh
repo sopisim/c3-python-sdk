@@ -1,0 +1,1 @@
+docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate -i "/local/c3-api.yml" -g python -o "/local/generated" -p packageName=c3_client --skip-validate-spec --global-property models,apis
