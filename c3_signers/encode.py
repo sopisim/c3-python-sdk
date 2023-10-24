@@ -46,10 +46,10 @@ def encode_user_operation(request: CERequest) -> bytearray:
 
 			result = bytearray([CEOpId.Withdraw, request.slot_id])
 			result.extend(request.amount.to_bytes(8, 'big', signed=False))
-			result.extend(request.receiver.chainId.to_bytes(2, 'big', signed=False))
+			result.extend(request.receiver.chain_id.to_bytes(2, 'big', signed=False))
 			result.extend(request.receiver.address)
-			result.extend(request.maxBorrow.to_bytes(8, 'big', signed=False))
-			result.extend(request.maxFees.to_bytes(8, 'big', signed=False))
+			result.extend(request.max_borrow.to_bytes(8, 'big', signed=False))
+			result.extend(request.max_fees.to_bytes(8, 'big', signed=False))
 			return result
 			
 		case CERequestOp.Delegate:

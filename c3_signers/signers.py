@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from algosdk import util, account
 from eth_account import Account, messages
 
-from c3_signers.encode import OrderData, SettlementTicket, encode_order_data
+from c3_signers.encode import OrderData, encode_order_data
+from c3_signers.types import SettlementTicket
 
 
 class MessageSigner(ABC):
@@ -15,7 +16,7 @@ class MessageSigner(ABC):
 		pass
 
 	@abstractmethod
-	def signMessage(self, message: bytes) -> str:
+	def sign_message(self, message: bytes) -> str:
 		pass
 
 
@@ -30,7 +31,7 @@ class AlgorandMessageSigner(MessageSigner):
 	def public_key(self) -> bytes:
 		return util.encoding.decode_address(account.address_from_private_key(self.private_key))
 
-	def signMessage(self, message: bytes) -> str:
+	def sign_message(self, message: bytes) -> str:
 		return util.sign_bytes(message, self.private_key)
 
 
@@ -47,7 +48,7 @@ class Web3MessageSigner(MessageSigner):
 		# FIXME: is this correct?
 		return Account.from_key(self.private_key).address()
 
-	def signMessage(self, message: bytes) -> str:
+	def sign_message(self, message: bytes) -> str:
 		msg = messages.encode_defunct(message)
 		return Account.sign_message(msg, private_key=self.private_key)
 
@@ -67,5 +68,5 @@ def sign_order_data(
 		order_data.expires_on,
 		order_data.nonce,
 		signer.public_key(),
-		signer.signMessage(encode_order_data(order_data)),
+		signer.sign_message(encode_order_data(order_data)),
 	)
