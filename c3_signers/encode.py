@@ -60,37 +60,68 @@ def encode_user_operation(request: CERequest) -> bytearray:
 			return result
 
 		case CERequestOp.Liquidate:
+			# Validate target address
 			target = base64.b64decode(request.target)
 			assert len(target) == 32
 
+			# Validate cash is all positive
 			if any(amount < 0 for amount in request.cash.values()):
 				raise ValueError('Liquidation cash can not be negative')
 
+			# Generate result
 			result = bytearray([CEOpId.Liquidate])
 			result.extend(target)
+
+			# Encode headers for cash and pool
+			cash_start = 1 + len(target) + 2 + 2 # NOTE: 1(op id) + 32(target) + 2(cash count) + 2(pool count)
+			result.extend(cash_start.to_bytes(2, 'big', signed=False))
+			pool_start = cash_start + 2 + len(request.cash) * 9
+			result.extend(pool_start.to_bytes(2, 'big', signed=False))
+
+			# Encode cash
+			result.extend(len(request.cash).to_bytes(2, 'big', signed=False))
 			for instrument_id in request.cash:
 				result.extend(instrument_id.to_bytes(1, 'big', signed=False))
 				result.extend(request.cash[instrument_id].to_bytes(8, 'big', signed=False))
+
+			# Encode pool
+			result.extend(len(request.pool).to_bytes(2, 'big', signed=False))
 			for instrument_id in request.pool:
 				result.extend(instrument_id.to_bytes(1, 'big', signed=False))
 				result.extend(request.pool[instrument_id].to_bytes(8, 'big', signed=True))
+
 			return result
 
 		case CERequestOp.AccountMove:
+			# Validate target address
 			target = base64.b64decode(request.target)
 			assert len(target) == 32
 
+			# Validate cash and pool are all positive
 			if any(amount < 0 for amount in request.cash.values()):
 				raise ValueError('Account move cash can not be negative')
 
 			if any(amount < 0 for amount in request.pool.values()):
 				raise ValueError('Account move pool can not be negative')
 
+			# Generate result
 			result = bytearray([CEOpId.AccountMove])
 			result.extend(target)
+
+			# Encode headers for cash and pool
+			cash_start = 1 + len(target) + 2 + 2 # NOTE: 1(op id) + 32(target) + 2(cash count) + 2(pool count)
+			result.extend(cash_start.to_bytes(2, 'big', signed=False))
+			pool_start = cash_start + 2 + len(request.cash) * 9
+			result.extend(pool_start.to_bytes(2, 'big', signed=False))
+
+			# Encode cash
+			result.extend(len(request.cash).to_bytes(2, 'big', signed=False))
 			for instrument_id in request.cash:
 				result.extend(instrument_id.to_bytes(1, 'big', signed=False))
 				result.extend(request.cash[instrument_id].to_bytes(8, 'big', signed=False))
+
+			# Encode pool
+			result.extend(len(request.pool).to_bytes(2, 'big', signed=False))
 			for instrument_id in request.pool:
 				result.extend(instrument_id.to_bytes(1, 'big', signed=False))
 				result.extend(request.pool[instrument_id].to_bytes(8, 'big', signed=False))

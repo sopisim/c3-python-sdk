@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from algosdk import util, account
+from algosdk import util, account, mnemonic
+import base64
 from eth_account import Account, messages
 
 from c3_signers.encode import OrderData, encode_order_data
@@ -22,11 +23,11 @@ class MessageSigner(ABC):
 
 class AlgorandMessageSigner(MessageSigner):
 	def __init__(self, private_key: str) -> None:
-		self.private_key = private_key
+		self.private_key = mnemonic.to_private_key(mnemonic.from_master_derivation_key(private_key))
 		super().__init__()
 
 	def account_id(self) -> str:
-		return "C3_" + account.address_from_private_key(self.private_key)
+		return account.address_from_private_key(self.private_key)
 
 	def public_key(self) -> bytes:
 		return util.encoding.decode_address(account.address_from_private_key(self.private_key))
@@ -42,7 +43,7 @@ class Web3MessageSigner(MessageSigner):
 
 	def account_id(self) -> str:
 		# FIXME: is this correct?
-		return "C3_" + Account.from_key(self.private_key).address()
+		return Account.from_key(self.private_key).address()
 
 	def public_key(self) -> bytes:
 		# FIXME: is this correct?
