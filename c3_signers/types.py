@@ -1,9 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
 from typing import Dict, TypeAlias
 
 
 AccountId: TypeAlias = str # NOTE: This is an account ID without the C3_ prefix
+Address: TypeAlias = str # NOTE: we3 address
+OrderId: TypeAlias = str
 SlotId: TypeAlias = int # NOTE: Unsigned 8 bit number
 ChainId: TypeAlias = int # NOTE: Wormhole chain ID https://docs.wormhole.com/wormhole/reference/constants
 ContractAmount: TypeAlias = int # NOTE: Unsigned 64 bit number
@@ -42,6 +44,7 @@ class CERequestOp(StrEnum):
 	Liquidate = 'liquidate'
 	Delegate = 'delegate'
 	AccountMove = 'account-move'
+	Cancel = 'cancel'
 
 
 # NOTE: These are internal IDs used by the contract to identify operations
@@ -122,3 +125,12 @@ class CEAccountMoveRequest(CERequest):
 	target: AccountId
 	pool: Dict[SlotId, ContractAmount]
 	cash: Dict[SlotId, ContractAmount]
+ 
+ 
+@dataclass
+class CECancelRequest(CERequest):
+    op: CERequestOp.Cancel
+    user: AccountId
+    creator: Address
+    orders: list[OrderId] = field(default_factory=list)  # array of orderIds
+    all_orders_until: Timestamp = None    

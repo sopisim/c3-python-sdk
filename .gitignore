@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.local
 
 # Spyder project settings
 .spyderproject
@@ -166,3 +167,6 @@ _scratch/
 
 # Ignore generated folder
 generated/
+
+#vscode
+.vscode/

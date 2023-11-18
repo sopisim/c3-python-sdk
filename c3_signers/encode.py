@@ -42,6 +42,10 @@ def encode_user_operation(request: CERequest) -> bytearray:
 		case CERequestOp.Withdraw:
 			# Validate receiver address
 			# NOTE: This is a bytes field because it is encoded as a string differently on each chain
+   
+			##to-do
+			# receiverAddress = base64.b64decode(request.receiver.address)
+
 			assert len(request.receiver.address) == 32
 
 			result = bytearray([CEOpId.Withdraw, request.slot_id])
@@ -126,3 +130,14 @@ def encode_user_operation(request: CERequest) -> bytearray:
 				result.extend(instrument_id.to_bytes(1, 'big', signed=False))
 				result.extend(request.pool[instrument_id].to_bytes(8, 'big', signed=False))
 			return result
+
+		case CERequestOp.Cancel:
+      		
+			# If 'orders' is present, decode each base64 string and concatenate them.
+			encoded_orders = b''.join(base64.b64decode(order) for order in request.orders)
+			
+			# If 'allOrdersUntil' is present, decode the base64 string.
+			encoded_all_orders_until = base64.b64decode(str(request.all_orders_until).encode()) if request.all_orders_until else b''
+
+			# Concatenate 'encodedOrders' and 'encodedAllOrdersUntil'.
+			return b''.join([encoded_orders, encoded_all_orders_until])

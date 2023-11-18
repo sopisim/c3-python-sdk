@@ -9,24 +9,20 @@ from c3_signers.types import SettlementTicket
 
 class MessageSigner(ABC):
 	@abstractmethod
-	def account_id(self) -> str:
-		pass
-
-	@abstractmethod
-	def public_key(self) -> bytes:
+	def address(self) -> str:
 		pass
 
 	@abstractmethod
 	def sign_message(self, message: bytes) -> str:
 		pass
 
-
+## to-do receive algo sdk account as init value
 class AlgorandMessageSigner(MessageSigner):
 	def __init__(self, private_key: str) -> None:
 		self.private_key = mnemonic.to_private_key(mnemonic.from_master_derivation_key(private_key))
 		super().__init__()
 
-	def account_id(self) -> str:
+	def address(self) -> str:
 		return account.address_from_private_key(self.private_key)
 
 	def public_key(self) -> bytes:
@@ -36,17 +32,13 @@ class AlgorandMessageSigner(MessageSigner):
 		return util.sign_bytes(message, self.private_key)
 
 
+## to-do receive eth_account account as init value
 class Web3MessageSigner(MessageSigner):
 	def __init__(self, private_key: str) -> None:
 		self.private_key = private_key
 		super().__init__()
 
-	def account_id(self) -> str:
-		# FIXME: is this correct?
-		return Account.from_key(self.private_key).address()
-
-	def public_key(self) -> bytes:
-		# FIXME: is this correct?
+	def address(self) -> str:
 		return Account.from_key(self.private_key).address()
 
 	def sign_message(self, message: bytes) -> str:
