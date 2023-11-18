@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.local
 
 # Spyder project settings
 .spyderproject
@@ -163,3 +164,9 @@ cython_debug/
 # Local testing
 test_local.py
 _scratch/
+
+# Ignore generated folder
+generated/
+
+#vscode
+.vscode/

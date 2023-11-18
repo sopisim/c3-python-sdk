@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "c3-python-sdk"
+version = "0.1.0"
+description = ""
+authors = ["Joshua Averett <josh@c3.io>", "Patrick Dahdah <patrick@c3.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mypy = "^1.6.0"
+py-algorand-sdk = "^2.5.0"
+web3 = "^6.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
