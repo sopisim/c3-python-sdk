@@ -170,3 +170,4 @@ generated/
 
 #vscode
 .vscode/
+.ts

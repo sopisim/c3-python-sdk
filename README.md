@@ -2,35 +2,27 @@
 Python client for C3 Exchange  (v1 API).
 
 
+## Terms
+
+This SDK is provided "as is", without warranty of any kind, express or implied. C3 Exchange does not take responsibility for any harm that might be caused by the use or misuse of this SDK.
 
 ## Developer Environment Set Up
 
-1. Install pre-commit tools
+**1. Init env with poetry**
 
 - Mac
 
 ```bash
-brew install pre-commit gawk coreutils
+poetry install
 ```
 
-- Windows (pending)
-- Linux (pending)
+**2. Tests**
 
-2. Create and activate virual python environment with pyenv or venv (python 3.11)
+to-do
 
-```bash
-python3 -m venv local_env
-source /local_env/bin/activate
-```
-
-Install dependencies
+**3. Run pre-commit hooks**
 
 ```bash
-python -m pip install --upgrade pip wheel setuptools
-```
-
-Run the make file with the pre-commit validations
-
-```bash
-make install_pre_commit
+poetry run pre-commit install
+poetry run pre-commit run --all-files
 ```

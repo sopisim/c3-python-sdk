@@ -1,15 +1,30 @@
 [tool.poetry]
 name = "c3-python-sdk"
 version = "0.1.0"
-description = ""
-authors = ["Joshua Averett <josh@c3.io>", "Patrick Dahdah <patrick@c3.io>"]
+description = "Python REST API SDK for C3.io Exchange"
+authors = ["C3 Exchange <hello@c3.io>"]
 readme = "README.md"
+repository = "https://github.com/c3exchange/c3-python-sdk"
+homepage = "https://github.com/c3exchange/c3-python-sdk"
+license='Apache 2.0'
+classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ]
+
 
 [tool.poetry.dependencies]
 python = "^3.11"
 mypy = "^1.6.0"
 py-algorand-sdk = "^2.5.0"
 web3 = "^6.11.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.5.0"
 
 [build-system]
 requires = ["poetry-core"]

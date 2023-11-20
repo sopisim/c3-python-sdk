@@ -7,7 +7,7 @@
     pkgs = nixpkgs.legacyPackages.${system};
   in {
     devShells.${system}.default = pkgs.mkShell {
-      packages = [ 
+      packages = [
 				pkgs.python311
 				pkgs.poetry
 			];
