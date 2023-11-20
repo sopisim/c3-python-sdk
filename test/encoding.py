@@ -108,7 +108,7 @@ def test_encode_withdraw():
         receiver=XChainAddress(
             chain_id=8,
             address=encoding.decode_address(
-                "AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4MPFYUMQ"
+                "AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4MPFYUMQ",
             ),
         ),
         slot_id=0,
