@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
-from algosdk import util, account, mnemonic
 import base64
+from abc import ABC, abstractmethod
+
+from algosdk import account, mnemonic, util
 from eth_account import Account, messages
 
 from c3.signing.encode import OrderData, encode_order_data
