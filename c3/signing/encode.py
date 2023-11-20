@@ -1,6 +1,6 @@
 import base64
 
-from c3_signers.types import CEOpId, CERequest, CERequestOp, OrderData
+from c3.signing.types import CEOpId, CERequest, CERequestOp, OrderData
 
 
 def encode_order_data(
