@@ -32,6 +32,10 @@ def encode_order_data(
 
 def encode_user_operation(request: CERequest) -> bytearray:
     match request.op:
+        case CERequestOp.Login:
+            nonce_as_bytes = request.nonce.encode("ascii")
+            return nonce_as_bytes
+
         case CERequestOp.Borrow | CERequestOp.Lend | CERequestOp.Redeem | CERequestOp.Repay:
             # For borrow and redeem, the amount is negative(taking from the pool)
             amount = (
