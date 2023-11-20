@@ -6,9 +6,8 @@ from typing import Dict, TypeAlias
 AccountId: TypeAlias = str  # NOTE: This is an account ID without the C3_ prefix
 Address: TypeAlias = str  # NOTE: we3 address
 OrderId: TypeAlias = str
-SlotId: TypeAlias = int  # NOTE: Unsigned 8 bit number
-# NOTE: Wormhole chain ID https://docs.wormhole.com/wormhole/reference/constants
-ChainId: TypeAlias = int
+SlotId: TypeAlias = int  # NOTE: getInstruments() returns the SlotIds per asset
+ChainId: TypeAlias = int  # NOTE: Wormhole chain ID https://docs.wormhole.com/wormhole/reference/constants
 ContractAmount: TypeAlias = int  # NOTE: Unsigned 64 bit number
 Timestamp: TypeAlias = int  # NOTE: Unix timestamp in seconds
 Nonce: TypeAlias = int  # NOTE: Unsigned 64 bit number
@@ -46,6 +45,7 @@ class CERequestOp(StrEnum):
     Delegate = "delegate"
     AccountMove = "account-move"
     Cancel = "cancel"
+    Login = "login"
 
 
 # NOTE: These are internal IDs used by the contract to identify operations
@@ -137,3 +137,9 @@ class CECancelRequest(CERequest):
     creator: Address
     orders: list[OrderId] = field(default_factory=list)  # array of orderIds
     all_orders_until: Timestamp = None
+
+
+@dataclass
+class CELoginRequest(CERequest):
+    op: CERequestOp.Login
+    nonce: str

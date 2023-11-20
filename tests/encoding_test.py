@@ -14,12 +14,34 @@ from c3.signing.types import (
     CEWithdrawRequest,
     XChainAddress,
     CECancelRequest,
+    CELoginRequest,
 )
 
 
 signer = AlgorandMessageSigner(base64.b64encode(bytes(range(32))))
 print("Created signer with address " + signer.address())
 print()
+
+
+def test_encode_login():
+    login_data = CELoginRequest(
+        op=CERequestOp.Login,
+        nonce="Welcome to C3:\n\nClick to sign and accept the C3 Terms of Service (https://c3.io/tos)\n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nMjY3ODgtMTcwMDQ2MTU1NzY2NC1V77+977+9NGHvv71fFe+/vVt177+9Od6077+9ZVHvv71+77+977+9RWQs77+9be+/ve+/vVhy77+9",
+    )
+
+    expected_encoding = b"Welcome to C3:\n\nClick to sign and accept the C3 Terms of Service (https://c3.io/tos)\n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nMjY3ODgtMTcwMDQ2MTU1NzY2NC1V77+977+9NGHvv71fFe+/vVt177+9Od6077+9ZVHvv71+77+977+9RWQs77+9be+/ve+/vVhy77+9"
+    actual_encoding = encode_user_operation(login_data)
+
+    expected_sig = "J9vmxX1L4aRE4JUpmH1VTLLK4lBOKhOSTXi60vNG+KUh+p2VejTzHI+nK/ENcf5ZwwQ9MFcp+tavpiTvPHXsBw=="
+    actual_sig = signer.sign_message(actual_encoding)
+
+    print("CANCEL", login_data)
+    print("ENCODED", bytearray(actual_encoding))
+    print("SIGNATURE", actual_sig)
+    print()
+
+    assert actual_encoding == expected_encoding
+    assert expected_sig == actual_sig
 
 
 def test_encode_order_data():
