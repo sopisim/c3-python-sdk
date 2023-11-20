@@ -1,4 +1,4 @@
-from test.encoding import (
+from tests.encoding_test import (
     test_encode_account_move,
     test_encode_lend,
     test_encode_liquidate,
