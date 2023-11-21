@@ -10,7 +10,6 @@ This SDK is provided "as is", without warranty of any kind, express or implied. 
 
 **1. Init env with poetry**
 
-- Mac
 
 ```bash
 poetry install

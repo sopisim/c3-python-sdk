@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
 from typing import Dict, TypeAlias
 
-
 AccountId: TypeAlias = str  # NOTE: This is an account ID without the C3_ prefix
 Address: TypeAlias = str  # NOTE: we3 address
 OrderId: TypeAlias = str
