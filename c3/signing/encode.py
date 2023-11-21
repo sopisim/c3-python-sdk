@@ -168,3 +168,5 @@ def encode_user_operation(request: CERequest) -> bytearray:
 
             # Concatenate 'encodedOrders' and 'encodedAllOrdersUntil'.
             return b"".join([encoded_orders, encoded_all_orders_until])
+        case _:
+            raise ValueError(f"Unsupported operation: {request.op}")

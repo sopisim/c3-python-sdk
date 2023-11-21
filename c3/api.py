@@ -1,6 +1,8 @@
+from typing import Any
+
 from requests import Session
-from utils.constants import MainnetConstants
-from utils.types import Any
+
+from c3.utils.constants import MainnetConstants
 
 
 class ApiClient:
