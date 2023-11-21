@@ -1,7 +1,7 @@
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation
 from c3.signing.signers import AlgorandMessageSigner, MessageSigner, Web3MessageSigner
-from c3.signing.types import CELoginRequest, CERequestOp
+from c3.signing.types import CELoginRequest, RequestOperation
 from c3.utils.constants import Constants, MainnetConstants, get_constants
 
 # from c3.account import Account
@@ -37,7 +37,7 @@ class C3Exchange(ApiClient):
         )
         nonce = loginStartResponse["nonce"]
 
-        loginData = CELoginRequest(op=CERequestOp.Login, nonce=nonce)
+        loginData = CELoginRequest(op=RequestOperation.Login, nonce=nonce)
         loginDataEncoded = encode_user_operation(loginData)
         signature = signer.sign_message(loginDataEncoded)
 

@@ -5,17 +5,17 @@ from algosdk import encoding, mnemonic
 from c3.signing.encode import OrderData, encode_order_data, encode_user_operation
 from c3.signing.signers import AlgorandMessageSigner
 from c3.signing.types import (
-    CEAccountMoveRequest,
-    CEBorrowRequest,
-    CECancelRequest,
-    CEDelegateRequest,
-    CELendRequest,
-    CELiquidateRequest,
-    CELoginRequest,
+    AccountMoveSignatureRequest,
+    BorrowSignatureRequest,
+    CancelSignatureRequest,
     CERedeemRequest,
-    CERepayRequest,
-    CERequestOp,
-    CEWithdrawRequest,
+    DelegateSignatureRequest,
+    LendSignatureRequest,
+    LiquidateSignatureRequest,
+    LoginSignatureRequest,
+    RepaySignatureRequest,
+    RequestOperation,
+    WithdrawSignatureRequest,
     XChainAddress,
 )
 
@@ -25,8 +25,8 @@ print()
 
 
 def test_encode_login():
-    login_data = CELoginRequest(
-        op=CERequestOp.Login,
+    login_data = LoginSignatureRequest(
+        op=RequestOperation.Login,
         nonce="Welcome to C3:\n\nClick to sign and accept the C3 Terms of Service (https://c3.io/tos)\n\nThis request will not trigger a blockchain transaction or cost any gas fees.\n\nMjY3ODgtMTcwMDQ2MTU1NzY2NC1V77+977+9NGHvv71fFe+/vVt177+9Od6077+9ZVHvv71+77+977+9RWQs77+9be+/ve+/vVhy77+9",
     )
 
@@ -89,8 +89,8 @@ def test_encode_order_data():
 
 
 def test_encode_cancel():
-    cancel_data = CECancelRequest(
-        op=CERequestOp.Cancel,
+    cancel_data = CancelSignatureRequest(
+        op=RequestOperation.Cancel,
         user="C3_AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4CJ7TS",
         creator="AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4MPFYUMQ",
         all_orders_until=12341234,
@@ -126,8 +126,8 @@ def test_encode_withdraw():
     # ENCODED AQAAAAAAAAAE0gAIA6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbgAAAAAAAAAAAAAAAAAAAAK
     # SIGNATURE q5VW3oEf6o6lk8qHeHYVAcUNe/kwuPKEIZxScm8M6quNoZ0DeavCnKkrxHuEjGDOK3ObHEity0z9JJYlV8psBg==
 
-    withdraw_data = CEWithdrawRequest(
-        op=CERequestOp.Withdraw,
+    withdraw_data = WithdrawSignatureRequest(
+        op=RequestOperation.Withdraw,
         receiver=XChainAddress(
             chain_id=8,
             address=encoding.decode_address(
@@ -160,8 +160,8 @@ def test_encode_lend():
     # ENCODED AgAAAAAAAAAE0g==
     # SIGNATURE QeQc7Rz0P+kAye8tRX5ctzMNUvaU3duaof+Dkda/lNkji58Wzw6ajWIyITUvJVymH5ZjDx4KPxHcHyX+ganSAg==
 
-    lend_data = CELendRequest(
-        op=CERequestOp.Lend,
+    lend_data = LendSignatureRequest(
+        op=RequestOperation.Lend,
         slot_id=0,
         amount=1234,
     )
@@ -187,7 +187,7 @@ def test_encode_redeem():
     # SIGNATURE 32jjXn114TRt0lNQ17abCrLU81HJX54Bg3AqemlEsc7nOjpNKbYKtD6mYeYWC7uXaikWwDQPZk2pg2EA1/aMBQ==
 
     redeem_data = CERedeemRequest(
-        op=CERequestOp.Redeem,
+        op=RequestOperation.Redeem,
         slot_id=0,
         amount=1234,
     )
@@ -212,8 +212,8 @@ def test_encode_borrow():
     # ENCODED AgD////////7Lg==
     # SIGNATURE 32jjXn114TRt0lNQ17abCrLU81HJX54Bg3AqemlEsc7nOjpNKbYKtD6mYeYWC7uXaikWwDQPZk2pg2EA1/aMBQ==
 
-    borrow_data = CEBorrowRequest(
-        op=CERequestOp.Borrow,
+    borrow_data = BorrowSignatureRequest(
+        op=RequestOperation.Borrow,
         slot_id=0,
         amount=1234,
     )
@@ -238,8 +238,8 @@ def test_encode_repay():
     # ENCODED AgAAAAAAAAAE0g==
     # SIGNATURE QeQc7Rz0P+kAye8tRX5ctzMNUvaU3duaof+Dkda/lNkji58Wzw6ajWIyITUvJVymH5ZjDx4KPxHcHyX+ganSAg==
 
-    repay_data = CERepayRequest(
-        op=CERequestOp.Repay,
+    repay_data = RepaySignatureRequest(
+        op=RequestOperation.Repay,
         slot_id=0,
         amount=1234,
     )
@@ -269,8 +269,8 @@ def test_encode_liquidate():
     # ENCODED BAOhB7/zzhC+HXDdGOdLwJln5NYwm6UNXx3chmQSVTG4ACUAMAABAAAAAAAAAATSAAEAAAAAAAAABNI=
     # SIGNATURE cL7hPWZSFR1hYG+qmzTOyh1lJASPCTDdL5Cd0n0pME9IN1dstoJ7f71ty1C9oCvqn08+tZTs4SWJG8xZj45uAg==
 
-    liquidate_data = CELiquidateRequest(
-        op=CERequestOp.Liquidate,
+    liquidate_data = LiquidateSignatureRequest(
+        op=RequestOperation.Liquidate,
         # FIXME: This is being encoded incorrectly
         target=base64.b64encode(signer.public_key()),
         cash={0: 1234},
@@ -302,8 +302,8 @@ def test_encode_delegate():
     # ENCODED AwOhB7/zzhC+HXDdGOdLwJln5NYwm6UNXx3chmQSVTG4AAAAAAAB4kAAAAAAAAaX5A==
     # SIGNATURE 3WGn56p+Xi3ZRatxYdlJiqID8+dXEEbzFWNn+YVab7BDBVo2f8sTNHUhHvhaP8DIgH+ZBmkQRMvxylpNTlB5Ag==
 
-    delegate_data = CEDelegateRequest(
-        op=CERequestOp.Delegate,
+    delegate_data = DelegateSignatureRequest(
+        op=RequestOperation.Delegate,
         delegate=base64.b64encode(signer.public_key()),
         creation=123456,
         expiration=432100,
@@ -336,8 +336,8 @@ def test_encode_account_move():
     # ENCODED BQOhB7/zzhC+HXDdGOdLwJln5NYwm6UNXx3chmQSVTG4ACUAMAABAAAAAAAAAATSAAEAAAAAAAAABNI=
     # SIGNATURE 21e+KKUQbUMeuuE98hL97TSDy7oXryXw4pNjvX3XfJioBTV5V/lcRHbq7O7IUoOZNxDg4menOI+1l3R3uB3dBQ==
 
-    account_move_data = CEAccountMoveRequest(
-        op=CERequestOp.AccountMove,
+    account_move_data = AccountMoveSignatureRequest(
+        op=RequestOperation.AccountMove,
         target=base64.b64encode(signer.public_key()),
         cash={0: 1234},
         pool={0: 1234},

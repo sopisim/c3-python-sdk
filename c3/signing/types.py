@@ -33,7 +33,7 @@ class SettlementTicket(OrderData):
 
 
 # NOTE: These are the operation names as they appear in the C3 OpenAPI spec
-class CERequestOp(StrEnum):
+class RequestOperation(StrEnum):
     Deposit = "deposit"
     Withdraw = "withdraw"
     Lend = "lend"
@@ -45,15 +45,14 @@ class CERequestOp(StrEnum):
     AccountMove = "account-move"
     Cancel = "cancel"
     Login = "login"
+    Order = "order"
 
 
 # NOTE: These are internal IDs used by the contract to identify operations
-class CEOpId(IntEnum):
+class SignatureRequestOperationId(IntEnum):
     Deposit = 0
     Withdraw = 1
-    PoolMove = (
-        2  # NOTE: The CERequestOp Lend/Redeem/Borrow/Repay operations all map to this
-    )
+    PoolMove = 2  # NOTE: The RequestOperation Lend/Redeem/Borrow/Repay operations all map to this
     Delegate = 3
     Liquidate = 4
     AccountMove = 5
@@ -67,71 +66,71 @@ class XChainAddress:
 
 
 @dataclass
-class CERequest:
+class SignatureRequest:
     pass
 
 
 @dataclass
-class CESingleAssetRequest(CERequest):
+class SignatureRequestSingleAsset(SignatureRequest):
     slot_id: SlotId
     amount: ContractAmount
 
 
 @dataclass
-class CEWithdrawRequest(CESingleAssetRequest):
-    op: CERequestOp.Withdraw
+class WithdrawSignatureRequest(SignatureRequestSingleAsset):
+    op: RequestOperation.Withdraw
     receiver: XChainAddress
     max_borrow: ContractAmount
     max_fees: ContractAmount
 
 
 @dataclass
-class CELendRequest(CESingleAssetRequest):
-    op: CERequestOp.Lend
+class LendSignatureRequest(SignatureRequestSingleAsset):
+    op: RequestOperation.Lend
 
 
 @dataclass
-class CERedeemRequest(CESingleAssetRequest):
-    op: CERequestOp.Redeem
+class CERedeemRequest(SignatureRequestSingleAsset):
+    op: RequestOperation.Redeem
 
 
 @dataclass
-class CEBorrowRequest(CESingleAssetRequest):
-    op: CERequestOp.Borrow
+class BorrowSignatureRequest(SignatureRequestSingleAsset):
+    op: RequestOperation.Borrow
 
 
 @dataclass
-class CERepayRequest(CESingleAssetRequest):
-    op: CERequestOp.Repay
+class RepaySignatureRequest(SignatureRequestSingleAsset):
+    op: RequestOperation.Repay
 
 
 @dataclass
-class CELiquidateRequest(CERequest):
-    op: CERequestOp.Liquidate
+class LiquidateSignatureRequest(SignatureRequest):
+    op: RequestOperation.Liquidate
     target: AccountId
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
 
 
 @dataclass
-class CEDelegateRequest(CERequest):
-    op: CERequestOp.Delegate
+class DelegateSignatureRequest(SignatureRequest):
+    op: RequestOperation.Delegate
     delegate: AccountId
     creation: Timestamp
     expiration: Timestamp
 
 
 @dataclass
-class CEAccountMoveRequest(CERequest):
-    op: CERequestOp.AccountMove
+class AccountMoveSignatureRequest(SignatureRequest):
+    op: RequestOperation.AccountMove
     target: AccountId
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
 
 
 @dataclass
-class CECancelRequest(CERequest):
-    op: CERequestOp.Cancel
+class CancelSignatureRequest(SignatureRequest):
+    op: RequestOperation.Cancel
     user: AccountId
     creator: Address
     orders: list[OrderId] = field(default_factory=list)  # array of orderIds
@@ -139,6 +138,6 @@ class CECancelRequest(CERequest):
 
 
 @dataclass
-class CELoginRequest(CERequest):
-    op: CERequestOp.Login
+class LoginSignatureRequest(SignatureRequest):
+    op: RequestOperation.Login
     nonce: str
