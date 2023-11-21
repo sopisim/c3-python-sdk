@@ -1,6 +1,11 @@
 import base64
 
-from c3.signing.types import CEOpId, CERequest, CERequestOp, OrderData
+from c3.signing.types import (
+    OrderData,
+    RequestOperation,
+    SignatureRequest,
+    SignatureRequestOperationId,
+)
 
 
 def encode_order_data(
@@ -11,7 +16,7 @@ def encode_order_data(
     assert len(account) == 32
 
     # Encode operation ID
-    encoded = bytearray([CEOpId.Settle])
+    encoded = bytearray([SignatureRequestOperationId.Settle])
 
     # Encode account ID
     encoded.extend(account)
@@ -30,26 +35,26 @@ def encode_order_data(
     return encoded
 
 
-def encode_user_operation(request: CERequest) -> bytearray:
+def encode_user_operation(request: SignatureRequest) -> bytearray:
     match request.op:
-        case CERequestOp.Login:
+        case RequestOperation.Login:
             nonce_as_bytes = request.nonce.encode("ascii")
             return nonce_as_bytes
 
-        case CERequestOp.Borrow | CERequestOp.Lend | CERequestOp.Redeem | CERequestOp.Repay:
+        case RequestOperation.Borrow | RequestOperation.Lend | RequestOperation.Redeem | RequestOperation.Repay:
             # For borrow and redeem, the amount is negative(taking from the pool)
             amount = (
                 -request.amount
-                if request.op in (CERequestOp.Borrow, CERequestOp.Redeem)
+                if request.op in (RequestOperation.Borrow, RequestOperation.Redeem)
                 else request.amount
             )
 
             # Encode remaining fields
-            result = bytearray([CEOpId.PoolMove, request.slot_id])
+            result = bytearray([SignatureRequestOperationId.PoolMove, request.slot_id])
             result.extend(amount.to_bytes(8, "big", signed=True))
             return result
 
-        case CERequestOp.Withdraw:
+        case RequestOperation.Withdraw:
             # Validate receiver address
             # NOTE: This is a bytes field because it is encoded as a string differently on each chain
 
@@ -58,7 +63,7 @@ def encode_user_operation(request: CERequest) -> bytearray:
 
             assert len(request.receiver.address) == 32
 
-            result = bytearray([CEOpId.Withdraw, request.slot_id])
+            result = bytearray([SignatureRequestOperationId.Withdraw, request.slot_id])
             result.extend(request.amount.to_bytes(8, "big", signed=False))
             result.extend(request.receiver.chain_id.to_bytes(2, "big", signed=False))
             result.extend(request.receiver.address)
@@ -66,14 +71,14 @@ def encode_user_operation(request: CERequest) -> bytearray:
             result.extend(request.max_fees.to_bytes(8, "big", signed=False))
             return result
 
-        case CERequestOp.Delegate:
-            result = bytearray([CEOpId.Delegate])
+        case RequestOperation.Delegate:
+            result = bytearray([SignatureRequestOperationId.Delegate])
             result.extend(base64.b64decode(request.delegate))
             result.extend(request.creation.to_bytes(8, "big", signed=False))
             result.extend(request.expiration.to_bytes(8, "big", signed=False))
             return result
 
-        case CERequestOp.Liquidate:
+        case RequestOperation.Liquidate:
             # Validate target address
             target = base64.b64decode(request.target)
             assert len(target) == 32
@@ -83,7 +88,7 @@ def encode_user_operation(request: CERequest) -> bytearray:
                 raise ValueError("Liquidation cash can not be negative")
 
             # Generate result
-            result = bytearray([CEOpId.Liquidate])
+            result = bytearray([SignatureRequestOperationId.Liquidate])
             result.extend(target)
 
             # Encode headers for cash and pool
@@ -112,7 +117,7 @@ def encode_user_operation(request: CERequest) -> bytearray:
 
             return result
 
-        case CERequestOp.AccountMove:
+        case RequestOperation.AccountMove:
             # Validate target address
             target = base64.b64decode(request.target)
             assert len(target) == 32
@@ -125,7 +130,7 @@ def encode_user_operation(request: CERequest) -> bytearray:
                 raise ValueError("Account move pool can not be negative")
 
             # Generate result
-            result = bytearray([CEOpId.AccountMove])
+            result = bytearray([SignatureRequestOperationId.AccountMove])
             result.extend(target)
 
             # Encode headers for cash and pool
@@ -153,7 +158,7 @@ def encode_user_operation(request: CERequest) -> bytearray:
                 )
             return result
 
-        case CERequestOp.Cancel:
+        case RequestOperation.Cancel:
             # If 'orders' is present, decode each base64 string and concatenate them.
             encoded_orders = b"".join(
                 base64.b64decode(order) for order in request.orders
