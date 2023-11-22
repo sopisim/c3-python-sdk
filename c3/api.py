@@ -19,8 +19,6 @@ class ApiClient:
             }
         )
 
-        return
-
     def get(self, url_path: str, params: Any = None) -> Any:
         url = self.base_url + url_path
 
