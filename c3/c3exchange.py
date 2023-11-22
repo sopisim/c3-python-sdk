@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation
-from c3.signing.signers import AlgorandMessageSigner, MessageSigner, Web3MessageSigner
+from c3.signing.signers import AlgorandMessageSigner, EVMMessageSigner, MessageSigner
 from c3.signing.types import LoginSignatureRequest, RequestOperation
 from c3.utils.constants import Constants, MainnetConstants, get_constants
 
@@ -40,7 +40,7 @@ class C3Exchange(ApiClient):
         """
         if isinstance(signer, AlgorandMessageSigner):
             chainId = self.Constants.ALGORAND_CHAIN_ID
-        elif isinstance(signer, Web3MessageSigner):
+        elif isinstance(signer, EVMMessageSigner):
             chainId = self.Constants.ETH_CHAIN_ID
 
         address = signer.address()

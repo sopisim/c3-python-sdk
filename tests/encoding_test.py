@@ -2,7 +2,7 @@ import base64
 
 from algosdk import encoding, mnemonic
 
-from c3.signing.encode import OrderData, encode_order_data, encode_user_operation
+from c3.signing.encode import encode_user_operation
 from c3.signing.signers import AlgorandMessageSigner
 from c3.signing.types import (
     AccountMoveSignatureRequest,

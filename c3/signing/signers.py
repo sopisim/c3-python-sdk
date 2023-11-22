@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from algosdk import account, mnemonic, util
 from eth_account import Account, messages
 
-from c3.signing.encode import OrderData, encode_order_data
+from c3.signing.encode import OrderData, encode_user_operation
 from c3.signing.types import SettlementTicket
 
 
@@ -51,13 +51,20 @@ class AlgorandMessageSigner(MessageSigner):
 
 
 # to-do receive eth_account account as init value
-class Web3MessageSigner(MessageSigner):
+class EVMMessageSigner(MessageSigner):
+    """ "
+    Ethereum Message Signer
+
+    It is a eth_account account wrapper to sign messages and decode address
+
+    """
+
     def __init__(self, private_key: str) -> None:
         self.private_key = private_key
         super().__init__()
 
     def address(self) -> str:
-        return Account.from_key(self.private_key).address()
+        return Account.from_key(self.private_key).address
 
     def decoded_address(self) -> bytes:
         """Decodes address decoded into bytes.
@@ -101,5 +108,5 @@ def sign_order_data(
         order_data.expires_on,
         order_data.nonce,
         signer.decoded_address(),
-        signer.sign_message(encode_order_data(order_data)),
+        signer.sign_message(encode_user_operation(order_data)),
     )
