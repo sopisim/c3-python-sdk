@@ -8,38 +8,37 @@ from c3.signing.types import (
 )
 
 
-def encode_order_data(
-    order_data: OrderData,
-) -> bytearray:
-    # Decode and validate account ID
-    account = base64.b64decode(order_data.account)
-    assert len(account) == 32
-
-    # Encode operation ID
-    encoded = bytearray([SignatureRequestOperationId.Settle])
-
-    # Encode account ID
-    encoded.extend(account)
-
-    # Encode remaining fields
-    encoded.extend(order_data.nonce.to_bytes(8, "big", signed=False))
-    encoded.extend(order_data.expires_on.to_bytes(8, "big", signed=False))
-    encoded.extend(order_data.sell_slot_id.to_bytes(1, "big", signed=False))
-    encoded.extend(order_data.sell_amount.to_bytes(8, "big", signed=False))
-    encoded.extend(
-        order_data.max_sell_amount_from_pool.to_bytes(8, "big", signed=False)
-    )
-    encoded.extend(order_data.buy_slot_id.to_bytes(1, "big", signed=False))
-    encoded.extend(order_data.buy_amount.to_bytes(8, "big", signed=False))
-    encoded.extend(order_data.max_buy_amount_to_pool.to_bytes(8, "big", signed=False))
-    return encoded
-
-
 def encode_user_operation(request: SignatureRequest) -> bytearray:
     match request.op:
         case RequestOperation.Login:
             nonce_as_bytes = request.nonce.encode("ascii")
             return nonce_as_bytes
+
+        case RequestOperation.Order:
+            # Decode and validate account ID
+            account = base64.b64decode(request.account)
+            assert len(account) == 32
+
+            # Encode operation ID
+            encoded = bytearray([SignatureRequestOperationId.Settle])
+
+            # Encode account ID
+            encoded.extend(account)
+
+            # Encode remaining fields
+            encoded.extend(request.nonce.to_bytes(8, "big", signed=False))
+            encoded.extend(request.expires_on.to_bytes(8, "big", signed=False))
+            encoded.extend(request.sell_slot_id.to_bytes(1, "big", signed=False))
+            encoded.extend(request.sell_amount.to_bytes(8, "big", signed=False))
+            encoded.extend(
+                request.max_sell_amount_from_pool.to_bytes(8, "big", signed=False)
+            )
+            encoded.extend(request.buy_slot_id.to_bytes(1, "big", signed=False))
+            encoded.extend(request.buy_amount.to_bytes(8, "big", signed=False))
+            encoded.extend(
+                request.max_buy_amount_to_pool.to_bytes(8, "big", signed=False)
+            )
+            return encoded
 
         case RequestOperation.Borrow | RequestOperation.Lend | RequestOperation.Redeem | RequestOperation.Repay:
             # For borrow and redeem, the amount is negative(taking from the pool)
