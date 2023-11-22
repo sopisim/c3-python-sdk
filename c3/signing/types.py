@@ -2,7 +2,9 @@ from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
 from typing import Dict, TypeAlias
 
-AccountId: TypeAlias = str  # NOTE: This is an account ID without the C3_ prefix
+AccountId: TypeAlias = (
+    str  # NOTE: This is the address in bytes. check decode_address function
+)
 Address: TypeAlias = str  # NOTE: we3 address
 OrderId: TypeAlias = str
 SlotId: TypeAlias = int  # NOTE: getInstruments() returns the SlotIds per asset
@@ -102,6 +104,20 @@ class BorrowSignatureRequest(SignatureRequestSingleAsset):
 @dataclass
 class RepaySignatureRequest(SignatureRequestSingleAsset):
     op: RequestOperation.Repay
+
+
+@dataclass
+class OrderSignatureRequest(SignatureRequest):
+    op: RequestOperation.Order
+    account: AccountId
+    sell_slot_id: SlotId
+    buy_slot_id: SlotId
+    sell_amount: ContractAmount
+    buy_amount: ContractAmount
+    max_sell_amount_from_pool: ContractAmount
+    max_buy_amount_to_pool: ContractAmount
+    expires_on: Timestamp
+    nonce: Nonce
 
 
 @dataclass

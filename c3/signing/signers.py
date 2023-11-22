@@ -1,4 +1,4 @@
-import base64
+import binascii
 from abc import ABC, abstractmethod
 
 from algosdk import account, mnemonic, util
@@ -17,6 +17,10 @@ class MessageSigner(ABC):
     def sign_message(self, message: bytes) -> str:
         pass
 
+    @abstractmethod
+    def decoded_address(self) -> bytes:
+        pass
+
 
 # to-do receive algo sdk account as init value
 
@@ -31,7 +35,13 @@ class AlgorandMessageSigner(MessageSigner):
     def address(self) -> str:
         return account.address_from_private_key(self.private_key)
 
-    def public_key(self) -> bytes:
+    def decoded_address(self) -> bytes:
+        """Decodes address decoded into bytes.
+            Smart Contract uses this format to represent addresses.
+
+        Returns:
+            bytes: address decoded into bytes
+        """
         return util.encoding.decode_address(
             account.address_from_private_key(self.private_key)
         )
@@ -48,6 +58,28 @@ class Web3MessageSigner(MessageSigner):
 
     def address(self) -> str:
         return Account.from_key(self.private_key).address()
+
+    def decoded_address(self) -> bytes:
+        """Decodes address decoded into bytes.
+            Smart Contract uses this format to represent addresses.
+
+        Returns:
+            bytes: address decoded into bytes
+        """
+
+        def _pad_left_uint8_array(value: bytes, total_length: int) -> bytes:
+            if len(value) > total_length:
+                raise ValueError(
+                    f"Invalid value length, expected {total_length} but received {len(value)}"
+                )
+            return bytes(total_length - len(value)) + value
+
+        def decode_ethereum_address(ethereum_address: str) -> bytes:
+            if ethereum_address.startswith("0x"):
+                ethereum_address = ethereum_address[2:]
+            return _pad_left_uint8_array(binascii.unhexlify(ethereum_address), 32)
+
+        return decode_ethereum_address(self.address())
 
     def sign_message(self, message: bytes) -> str:
         msg = messages.encode_defunct(message)
@@ -68,6 +100,6 @@ def sign_order_data(
         order_data.max_buy_amount_to_pool,
         order_data.expires_on,
         order_data.nonce,
-        signer.public_key(),
+        signer.decoded_address(),
         signer.sign_message(encode_order_data(order_data)),
     )
