@@ -1,7 +1,9 @@
+from typing import Any, Dict
+
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation
 from c3.signing.signers import AlgorandMessageSigner, MessageSigner, Web3MessageSigner
-from c3.signing.types import CELoginRequest, RequestOperation
+from c3.signing.types import LoginSignatureRequest, RequestOperation
 from c3.utils.constants import Constants, MainnetConstants, get_constants
 
 # from c3.account import Account
@@ -9,11 +11,22 @@ from c3.utils.constants import Constants, MainnetConstants, get_constants
 
 class C3Exchange(ApiClient):
     def __init__(
-        self, base_url: str = MainnetConstants.API_URL, constants: Constants = None
+        self,
+        base_url: str = MainnetConstants.API_URL,
+        constants: Constants = None,
+        instrumentsInfo: Dict[str, Any] = None,
+        marketsInfo: Dict[str, Any] = None,
     ):
         self.base_url = base_url
-        self.Constants = constants if constants is not None else get_constants(base_url)
         super().__init__(base_url)
+
+        self.Constants = constants if constants is not None else get_constants(base_url)
+        self.instrumentsInfo = (
+            instrumentsInfo if instrumentsInfo is not None else self._getInstruments()
+        )
+        self.marketsInfo = (
+            marketsInfo if marketsInfo is not None else self._getMarkets()
+        )
 
     def login(self, signer: MessageSigner, chainId: int = None) -> None:
         """Auth to C3 Exchange
@@ -37,7 +50,7 @@ class C3Exchange(ApiClient):
         )
         nonce = loginStartResponse["nonce"]
 
-        loginData = CELoginRequest(op=RequestOperation.Login, nonce=nonce)
+        loginData = LoginSignatureRequest(op=RequestOperation.Login, nonce=nonce)
         loginDataEncoded = encode_user_operation(loginData)
         signature = signer.sign_message(loginDataEncoded)
 
@@ -47,3 +60,24 @@ class C3Exchange(ApiClient):
         )
 
         return loginCompleteResponse
+
+    def _getInstruments(self) -> Dict[str, Any]:
+        instrumentsResponse = self.get("v1/instruments")
+        instrumentsDict = {
+            item["id"]: {
+                **{k: v for k, v in item.items() if k != "id"},
+                **{"slot_id": index},
+            }
+            for index, item in enumerate(instrumentsResponse)
+        }
+
+        return instrumentsDict
+
+    def _getMarkets(self) -> Dict[str, Any]:
+        marketsResponse = self.get("v1/markets")
+        marketsDict = {
+            item["id"]: {k: v for k, v in item.items() if k != "id"}
+            for item in marketsResponse
+        }
+
+        return marketsDict
