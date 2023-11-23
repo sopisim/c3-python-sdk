@@ -17,7 +17,7 @@ class TestWebSockets(unittest.IsolatedAsyncioTestCase):
         account = c3_client.login(signer)
         print(account)
         client = WebSocketClient(
-            base_url, account_id=account["accountId"], jwt_token=account["token"]
+            base_url, account_id=account.accountId, jwt_token=account.apiToken
         )
 
         connected = False

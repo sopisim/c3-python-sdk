@@ -1,3 +1,4 @@
+import base64
 import binascii
 from abc import ABC, abstractmethod
 
@@ -18,7 +19,7 @@ class MessageSigner(ABC):
         pass
 
     @abstractmethod
-    def decoded_address(self) -> bytes:
+    def base64address(self) -> bytes:
         pass
 
 
@@ -43,16 +44,20 @@ class AlgorandMessageSigner(MessageSigner):
     def address(self) -> str:
         return account.address_from_private_key(self.private_key)
 
-    def decoded_address(self) -> bytes:
+    def base64address(self) -> bytes:
         """Decodes address decoded into bytes.
             Smart Contract uses this format to represent addresses.
 
         Returns:
             bytes: address decoded into bytes
         """
-        return util.encoding.decode_address(
+        bytesAddress = util.encoding.decode_address(
             account.address_from_private_key(self.private_key)
         )
+
+        base64address = base64.b64encode(bytesAddress)
+
+        return base64address
 
     def sign_message(self, message: bytes) -> str:
         return util.sign_bytes(message, self.private_key)
@@ -74,7 +79,7 @@ class EVMMessageSigner(MessageSigner):
     def address(self) -> str:
         return Account.from_key(self.private_key).address
 
-    def decoded_address(self) -> bytes:
+    def base64address(self) -> bytes:
         """Decodes address decoded into bytes.
             Smart Contract uses this format to represent addresses.
 
@@ -94,11 +99,18 @@ class EVMMessageSigner(MessageSigner):
                 ethereum_address = ethereum_address[2:]
             return _pad_left_uint8_array(binascii.unhexlify(ethereum_address), 32)
 
-        return decode_ethereum_address(self.address())
+        base64address = base64.b64encode(decode_ethereum_address(self.address()))
+        return base64address
 
     def sign_message(self, message: bytes) -> str:
         msg = messages.encode_defunct(message)
-        return Account.sign_message(msg, private_key=self.private_key)
+        hexBytesSignature = Account.sign_message(
+            msg, private_key=self.private_key
+        ).signature
+
+        base64_encoded_signature = base64.b64encode(hexBytesSignature).decode("utf-8")
+
+        return base64_encoded_signature
 
 
 def sign_order_data(
@@ -115,6 +127,6 @@ def sign_order_data(
         order_data.max_buy_amount_to_pool,
         order_data.expires_on,
         order_data.nonce,
-        signer.decoded_address(),
+        signer.base64address(),
         signer.sign_message(encode_user_operation(order_data)),
     )
