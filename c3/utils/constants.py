@@ -25,7 +25,7 @@ class TestnetConstants(Constants):
 
 
 class LocalHostConstants(Constants):
-    API_URL = "http://localhost:3000"
+    API_URL = "http://localhost:3000/"
     ALGORAND_CHAIN_ID = 8
     AVAX_CHAIN_ID = 6
     ETH_CHAIN_ID = 2
@@ -34,7 +34,7 @@ class LocalHostConstants(Constants):
 constants_mapping = {
     "https://api.c3.io/": MainnetConstants,
     "https://api.test.c3.io/": TestnetConstants,
-    "http://localhost:3000": LocalHostConstants,
+    "http://localhost:3000/": LocalHostConstants,
 }
 
 

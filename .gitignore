@@ -171,3 +171,6 @@ generated/
 #vscode
 .vscode/
 .ts
+
+#idea
+.idea/

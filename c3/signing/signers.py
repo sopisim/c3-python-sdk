@@ -26,10 +26,18 @@ class MessageSigner(ABC):
 
 
 class AlgorandMessageSigner(MessageSigner):
+    @staticmethod
+    def from_mnemonic(mnemonic_string: str):
+        pk = mnemonic.to_private_key(mnemonic_string)
+        return AlgorandMessageSigner(pk)
+
+    @staticmethod
+    def from_master_key(private_key: str):
+        pk = mnemonic.from_master_derivation_key(private_key)
+        return AlgorandMessageSigner(pk)
+
     def __init__(self, private_key: str) -> None:
-        self.private_key = mnemonic.to_private_key(
-            mnemonic.from_master_derivation_key(private_key)
-        )
+        self.private_key = private_key
         super().__init__()
 
     def address(self) -> str:
