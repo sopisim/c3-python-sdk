@@ -38,14 +38,15 @@ constants_mapping = {
 }
 
 
-def get_constants(base_url: str, enviroment: str = None) -> Type[Constants]:
+def get_constants(base_url: str) -> Type[Constants]:
     constants_class = None
     if base_url:
         constants_class = constants_mapping.get(base_url)
-    elif enviroment:
-        constants_class = constants_mapping.get(enviroment)
 
     if constants_class:
         return constants_class  # Return the constants_class
     else:
-        raise ValueError(f"No constants defined for URL: {base_url}")
+        print(
+            f"No constants class found for base_url: {base_url}Using default constants class: MainnetConstants"
+        )
+        return MainnetConstants  # Return the default constants_class

@@ -1,12 +1,11 @@
 from typing import Any, Dict
 
+from c3.account import Account
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation
 from c3.signing.signers import AlgorandMessageSigner, EVMMessageSigner, MessageSigner
 from c3.signing.types import LoginSignatureRequest, RequestOperation
 from c3.utils.constants import Constants, MainnetConstants, get_constants
-
-# from c3.account import Account
 
 
 class C3Exchange(ApiClient):
@@ -28,7 +27,7 @@ class C3Exchange(ApiClient):
             marketsInfo if marketsInfo is not None else self._getMarkets()
         )
 
-    def login(self, signer: MessageSigner, chainId: int = None) -> None:
+    def login(self, signer: MessageSigner, chainId: int = None) -> Account:
         """Auth to C3 Exchange
 
         Args:
@@ -59,14 +58,22 @@ class C3Exchange(ApiClient):
             {"chainId": chainId, "address": address, "signature": signature},
         )
 
-        return loginCompleteResponse
+        return Account(
+            signer=signer,
+            accountId=loginCompleteResponse["accountId"],
+            apiToken=loginCompleteResponse["token"],
+            instrumentsInfo=self.instrumentsInfo,
+            marketsInfo=self.marketsInfo,
+            base_url=self.base_url,
+            constants=self.Constants,
+        )
 
     def _getInstruments(self) -> Dict[str, Any]:
         instrumentsResponse = self.get("v1/instruments")
         instrumentsDict = {
             item["id"]: {
                 **{k: v for k, v in item.items() if k != "id"},
-                **{"slot_id": index},
+                **{"slotId": index},
             }
             for index, item in enumerate(instrumentsResponse)
         }

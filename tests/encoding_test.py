@@ -64,7 +64,7 @@ def test_encode_order_data():
     order_data = OrderSignatureRequest(
         op=RequestOperation.Order,
         # NOTE: This is the base64 of the above address
-        account=base64.b64encode(signer.decoded_address()),
+        account=signer.base64address(),
         sell_slot_id=42,
         buy_slot_id=23,
         sell_amount=10000000,
@@ -76,9 +76,7 @@ def test_encode_order_data():
     )
 
     expected_encoding = "BgOhB7/zzhC+HXDdGOdLwJln5NYwm6UNXx3chmQSVTG4AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA="
-    actual_encoding = base64.b64encode(encode_user_operation(order_data)).decode(
-        "utf-8"
-    )
+    actual_encoding = base64.b64encode(encode_user_operation(order_data)).decode()
 
     expected_sig = "nsutxRIDOYMKmdAES/ogvlSW555S0jKcRqZtHR6MwFW1zXJ6kMZur26kdyYx89cEzD4z0iGEU2MpXvKCOUILBA=="
     actual_sig = signer.sign_message(base64.b64decode(actual_encoding))
@@ -276,7 +274,7 @@ def test_encode_liquidate():
     liquidate_data = LiquidateSignatureRequest(
         op=RequestOperation.Liquidate,
         # FIXME: This is being encoded incorrectly
-        target=base64.b64encode(signer.decoded_address()),
+        target=signer.base64address(),
         cash={0: 1234},
         pool={0: 1234},
     )
@@ -308,7 +306,7 @@ def test_encode_delegate():
 
     delegate_data = DelegateSignatureRequest(
         op=RequestOperation.Delegate,
-        delegate=base64.b64encode(signer.decoded_address()),
+        delegate=signer.base64address(),
         creation=123456,
         expiration=432100,
     )
@@ -342,7 +340,7 @@ def test_encode_account_move():
 
     account_move_data = AccountMoveSignatureRequest(
         op=RequestOperation.AccountMove,
-        target=base64.b64encode(signer.decoded_address()),
+        target=signer.base64address(),
         cash={0: 1234},
         pool={0: 1234},
     )

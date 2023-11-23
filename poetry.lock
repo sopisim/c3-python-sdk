@@ -1854,6 +1854,16 @@ linter = ["black (>=22.1.0)", "flake8 (==3.8.3)", "isort (>=5.11.0)", "mypy (==1
 tester = ["eth-tester[py-evm] (==v0.9.1-b.1)", "py-geth (>=3.11.0)"]
 
 [[package]]
+name = "websocketio"
+version = "1.0.3"
+description = "A simple Python project"
+optional = false
+python-versions = ">=3.7, <4"
+files = [
+    {file = "websocketio-1.0.3-py3-none-any.whl", hash = "sha256:5f3b6882d77491600473e73df46034d47403ed64866562ff08261347b64042a7"},
+]
+
+[[package]]
 name = "websockets"
 version = "11.0.3"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
@@ -2022,4 +2032,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "405c42adb7ea44aaffefaeb44b4c8a6aa56ebf6e24b520329b5767c07e923faf"
+content-hash = "39b0c56b4310cb60a84d8ab97b433689ce51c9534bfc33757a99d363a173a67d"
