@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from algosdk import account, mnemonic, util
 from eth_account import Account, messages
 
-from c3.signing.encode import OrderData, encode_user_operation
+from c3.signing.encode import OrderData, encode_user_operation_base
 from c3.signing.types import SettlementTicket
 
 
@@ -120,5 +120,5 @@ def sign_order_data(
         order_data.expires_on,
         order_data.nonce,
         signer.base64address(),
-        signer.sign_message(encode_user_operation(order_data)),
+        signer.sign_message(encode_user_operation_base(order_data)),
     )

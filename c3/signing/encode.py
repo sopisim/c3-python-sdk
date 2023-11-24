@@ -1,14 +1,13 @@
 import base64
 
 from c3.signing.types import (
-    SignatureMethod,
     RequestOperation,
     SignatureRequest,
     SignatureRequestOperationId,
 )
 
 
-def encode_user_operation(request: SignatureRequest) -> bytearray:
+def encode_user_operation_base(request: SignatureRequest) -> bytearray:
     match request.op:
         case RequestOperation.Login:
             nonce_as_bytes = request.nonce.encode("ascii")
@@ -176,50 +175,21 @@ def encode_user_operation(request: SignatureRequest) -> bytearray:
             raise ValueError(f"Unsupported operation: {request.op}")
 
 
-def get_data_to_sign(encoded_operation: bytearray, target_address_str: str, lease: bytearray, last_valid: int) -> bytearray:
-    assert len(lease) == 32
-
-    target_address = base64.b64decode(target_address_str)
-    assert len(target_address) == 32
-
-    result = bytearray()
-    result.extend("(C3.IO)0")
-    result.extend(target_address)
-    result.extend(lease)
-    result.extend(last_valid.to_bytes(8, "big", signed=False))
-    result.extend(encoded_operation)
-    return base64.b64encode(result)
-
-
-def get_signed_payload(
-    encoded_operation: bytearray,
-    signature_method: SignatureMethod,
-    signature_prefix: bytearray,
-    signature: bytearray,
-    signer_address_str: str,
-    target_address_str: str,
-    lease: bytearray,
-    last_valid: int
-) -> bytearray:
-    assert len(lease) == 32
+def encode_user_operation(request: SignatureRequest) -> bytearray:
+    encoded_operation = encode_user_operation_base(request)
     
-    signer_address = base64.b64decode(signer_address_str)
-    assert len(signer_address) == 32
+    match request.op:
+        case RequestOperation.Login | RequestOperation.Cancel:
+            # FIXME: Does this need to be base64 encoded?
+            # If not, we should probably change it on the server side
+            # for consistency.
+            return encoded_operation
+        case _:
+            result = bytearray()
+            result.extend("(C3.IO)0")
+            result.extend(request.account)
+            result.extend(request.lease)
+            result.extend(request.last_valid.to_bytes(8, "big", signed=False))
+            result.extend(base64.b64encode(encoded_operation))
+            return base64.b64encode(result)
 
-    target_address = base64.b64decode(target_address_str)
-    assert len(target_address) == 32
-
-    # ((target, lease, last_valid), operation, signed_data, sign_method, signature, signer, prefix)
-    result = bytearray()
-    
-    result.extend(target_address)
-    result.extend(lease)
-    result.extend(last_valid.to_bytes(8, "big", signed=False))
-
-    result.extend(encoded_operation)
-    result.extend(get_data_to_sign(encoded_operation, target_address_str, lease, last_valid))
-    result.extend(signature_method.to_bytes(1, "big", signed=False))
-    result.extend(signature)
-    result.extend(signer_address)
-    result.extend(signature_prefix)
-    return result

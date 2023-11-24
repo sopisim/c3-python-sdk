@@ -13,6 +13,7 @@ ContractAmount: TypeAlias = int  # NOTE: Unsigned 64 bit number
 Timestamp: TypeAlias = int  # NOTE: Unix timestamp in seconds
 Nonce: TypeAlias = int  # NOTE: Unsigned 64 bit number
 Signature: TypeAlias = str  # NOTE: Base64 encoded signature
+LeaseValue: TypeAlias = bytes # NOTE: A 32 byte array of random bytes or all zeros for no lease
 
 
 @dataclass
@@ -60,10 +61,6 @@ class SignatureRequestOperationId(IntEnum):
     AccountMove = 5
     Settle = 6  # NOTE: This is a special operation ID used for order creation
 
-class SignatureMethod(IntEnum):
-    ED25519 = 0
-    ECDSA = 1
-
 
 @dataclass
 class XChainAddress:
@@ -73,13 +70,18 @@ class XChainAddress:
 
 @dataclass
 class SignatureRequest:
+    op: RequestOperation
     pass
 
 
 @dataclass
 class SignatureRequestSingleAsset(SignatureRequest):
+    account: AccountId
     slot_id: SlotId
     amount: ContractAmount
+    
+    lease: LeaseValue
+    last_valid: Timestamp
 
 
 @dataclass
@@ -127,6 +129,7 @@ class OrderSignatureRequest(SignatureRequest):
 @dataclass
 class LiquidateSignatureRequest(SignatureRequest):
     op: RequestOperation.Liquidate
+    account: AccountId
     target: AccountId
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
@@ -135,6 +138,7 @@ class LiquidateSignatureRequest(SignatureRequest):
 @dataclass
 class DelegateSignatureRequest(SignatureRequest):
     op: RequestOperation.Delegate
+    account: AccountId
     delegate: AccountId
     creation: Timestamp
     expiration: Timestamp
@@ -143,6 +147,7 @@ class DelegateSignatureRequest(SignatureRequest):
 @dataclass
 class AccountMoveSignatureRequest(SignatureRequest):
     op: RequestOperation.AccountMove
+    account: AccountId
     target: AccountId
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
@@ -151,8 +156,6 @@ class AccountMoveSignatureRequest(SignatureRequest):
 @dataclass
 class CancelSignatureRequest(SignatureRequest):
     op: RequestOperation.Cancel
-    user: AccountId
-    creator: Address
     orders: list[OrderId] = field(default_factory=list)  # array of orderIds
     all_orders_until: Timestamp = None
 
@@ -161,3 +164,4 @@ class CancelSignatureRequest(SignatureRequest):
 class LoginSignatureRequest(SignatureRequest):
     op: RequestOperation.Login
     nonce: str
+    # TODO: We should have the account here for consistency
