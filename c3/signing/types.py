@@ -60,6 +60,10 @@ class SignatureRequestOperationId(IntEnum):
     AccountMove = 5
     Settle = 6  # NOTE: This is a special operation ID used for order creation
 
+class SignatureMethod(IntEnum):
+    ED25519 = 0
+    ECDSA = 1
+
 
 @dataclass
 class XChainAddress:
