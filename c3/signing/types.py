@@ -13,7 +13,9 @@ ContractAmount: TypeAlias = int  # NOTE: Unsigned 64 bit number
 Timestamp: TypeAlias = int  # NOTE: Unix timestamp in seconds
 Nonce: TypeAlias = int  # NOTE: Unsigned 64 bit number
 Signature: TypeAlias = str  # NOTE: Base64 encoded signature
-LeaseValue: TypeAlias = bytes # NOTE: A 32 byte array of random bytes or all zeros for no lease
+LeaseValue: TypeAlias = (
+    bytes  # NOTE: A 32 byte array of random bytes or all zeros for no lease
+)
 
 
 @dataclass
@@ -79,7 +81,7 @@ class SignatureRequestSingleAsset(SignatureRequest):
     account: AccountId
     slot_id: SlotId
     amount: ContractAmount
-    
+
     lease: LeaseValue
     last_valid: Timestamp
 
@@ -124,6 +126,10 @@ class OrderSignatureRequest(SignatureRequest):
     max_buy_amount_to_pool: ContractAmount
     expires_on: Timestamp
     nonce: Nonce
+
+    # NOTE: For orders, these should be zero
+    lease: LeaseValue
+    last_valid: Timestamp
 
 
 @dataclass

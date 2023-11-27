@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from algosdk import account, mnemonic, util
 from eth_account import Account, messages
 
-from c3.signing.encode import OrderData, encode_user_operation_base
+from c3.signing.encode import encode_user_operation_base
 from c3.signing.types import SettlementTicket
 
 
@@ -103,22 +103,3 @@ class EVMMessageSigner(MessageSigner):
         base64_encoded_signature = base64.b64encode(hexBytesSignature).decode("utf-8")
 
         return base64_encoded_signature
-
-
-def sign_order_data(
-    order_data: OrderData,
-    signer: MessageSigner,
-) -> SettlementTicket:
-    return SettlementTicket(
-        order_data.account,
-        order_data.sell_slot_id,
-        order_data.buy_slot_id,
-        order_data.sell_amount,
-        order_data.buy_amount,
-        order_data.max_sell_amount_from_pool,
-        order_data.max_buy_amount_to_pool,
-        order_data.expires_on,
-        order_data.nonce,
-        signer.base64address(),
-        signer.sign_message(encode_user_operation_base(order_data)),
-    )

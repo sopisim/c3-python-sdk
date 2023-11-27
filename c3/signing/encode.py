@@ -177,7 +177,7 @@ def encode_user_operation_base(request: SignatureRequest) -> bytearray:
 
 def encode_user_operation(request: SignatureRequest) -> bytearray:
     encoded_operation = encode_user_operation_base(request)
-    
+
     match request.op:
         case RequestOperation.Login | RequestOperation.Cancel:
             # FIXME: Does this need to be base64 encoded?
@@ -186,10 +186,9 @@ def encode_user_operation(request: SignatureRequest) -> bytearray:
             return encoded_operation
         case _:
             result = bytearray()
-            result.extend("(C3.IO)0")
+            result.extend(b"(C3.IO)0")
             result.extend(request.account)
             result.extend(request.lease)
             result.extend(request.last_valid.to_bytes(8, "big", signed=False))
             result.extend(base64.b64encode(encoded_operation))
             return base64.b64encode(result)
-
