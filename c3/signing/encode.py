@@ -24,7 +24,6 @@ def encode_user_operation_base(request: SignatureRequest) -> bytearray:
             return nonce_as_bytes
 
         case RequestOperation.Order:
-            print("\n\n Orderrequest\n", request)
             # Decode and validate account ID
             account = base64.b64decode(request.account)
             assert len(account) == 32

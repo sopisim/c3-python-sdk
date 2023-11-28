@@ -48,13 +48,36 @@ class Account(ApiClient):
 
     def submitOrder(self, orderParams: Dict[str, Any]):
         """
-        Create an order.
+        Submits a new order to the trading system based on the specified parameters.
+
+        It extracts market information using the 'marketId' from 'orderParams', calculates base and quote
+        instrument information, and prepares the order data including the type, side,
+        amount, and price of the order. The method handles both market and limit orders
+        and computes values for buying and selling amounts, slot IDs, and max borrow/repay
+        values as applicable. It also includes order signing and payload preparation
+        before making a POST request to submit the order.
 
         Args:
-            order_params (Dict[str, Any]): A dictionary containing order parameters.
+            orderParams (Dict[str, Any]): A dictionary containing the parameters for the order.
+                Expected keys include:
+                    - marketId (str): Identifier of the market.
+                    - type (str): Type of the order ('market' or 'limit').
+                    - side (str): Side of the order ('buy' or 'sell').
+                    - amount (str): Amount of the order.
+                    - price (str, optional): Price of the order if it's a limit order.
+                    - maxBorrow (str, optional): Maximum amount to borrow for the order.
+                    - maxRepay (str, optional): Maximum amount to repay for the order.
+                    - expiresOn (int, optional): Expiration timestamp of the order.
+                    - clientOrderId (str, optional): Client-side identifier of the order.
 
         Returns:
-            order.id (str): The order id.
+            str: The response from the order submission, typically including the order id.
+
+        Note:
+            The method increments 'lastNonceStored' for each order and calculates
+            expiration time if not specified. It also encodes and signs the order
+            before submission. Ensure that all necessary keys are provided in
+            'orderParams' to avoid errors.
         """
 
         marketId = orderParams["marketId"]
@@ -164,9 +187,6 @@ class Account(ApiClient):
         encoded_order = encode_user_operation(order_signature_request)
         signature = self.signer.sign_message(encoded_order)
 
-        orderData["creator"] = self.address
-        orderData["sentTime"] = int(time.time())
-
         orderPayload = {
             "marketId": marketId,
             "type": orderData["type"],
@@ -174,7 +194,7 @@ class Account(ApiClient):
             "size": orderData["amount"],
             "price": orderData["price"],
             "clientOrderId": client_order_id,
-            "sentTime": orderData["sentTime"],
+            "sentTime": int(time.time()),
             "settlementTicket": {
                 "account": self.base64address.decode("utf-8"),
                 "sellSlotId": values["sellSlotId"],

@@ -5,7 +5,7 @@ from c3.signing.signers import AlgorandMessageSigner, EVMMessageSigner
 from c3.utils.constants import TestnetConstants
 
 MNEMONIC = ""
-private_key = mnemonic.to_master_derivation_key(MNEMONIC)
+private_key = mnemonic.to_private_key(MNEMONIC)
 signerAlgorand = AlgorandMessageSigner(private_key)
 
 c3Client = C3Exchange(base_url=TestnetConstants.API_URL)
