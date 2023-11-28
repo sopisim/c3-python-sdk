@@ -1,5 +1,3 @@
-import base64
-import json
 import time
 from decimal import Decimal
 from typing import Any, Dict
@@ -48,7 +46,6 @@ class Account(ApiClient):
     def getBalance(self):
         return self.get(f"v1/accounts/{self.accountId}/balance")
 
-    # FIX ME
     def submitOrder(self, orderParams: Dict[str, Any]):
         """
         Create an order.
@@ -145,10 +142,10 @@ class Account(ApiClient):
         expires_on = orderParams.get("expiresOn", int(time.time()) + 86400)
         client_order_id = orderParams.get("clientOrderId", "")
 
-        orderNonce = self.lastNonceStored
+        order_nonce = self.lastNonceStored
         self.lastNonceStored += 1
 
-        orderDataToSign = OrderSignatureRequest(
+        order_signature_request = OrderSignatureRequest(
             op=RequestOperation.Order,
             account=self.base64address,
             sell_slot_id=values["sellSlotId"],
@@ -158,15 +155,14 @@ class Account(ApiClient):
             max_sell_amount_from_pool=orderData["max_repay"],
             max_buy_amount_to_pool=orderData["max_borrow"],
             expires_on=expires_on,
-            nonce=orderNonce,
+            nonce=order_nonce,
+            # NOTE: For orders, these should be zero
+            last_valid=0,
+            lease=bytearray(32),
         )
 
-        encoded_order = base64.b64encode(
-            encode_user_operation(orderDataToSign)
-        ).decode()
-
-        signature = self.signer.sign_message(base64.b64decode(encoded_order))
-        print("signature", signature)
+        encoded_order = encode_user_operation(order_signature_request)
+        signature = self.signer.sign_message(encoded_order)
 
         orderData["creator"] = self.address
         orderData["sentTime"] = int(time.time())
@@ -188,7 +184,7 @@ class Account(ApiClient):
                 "maxSellAmountFromPool": "0",
                 "maxBuyAmountToPool": "0",
                 "expiresOn": expires_on,
-                "nonce": orderNonce,
+                "nonce": order_nonce,
                 "creator": self.address,
                 "signature": signature,
             },

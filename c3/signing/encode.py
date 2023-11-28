@@ -1,44 +1,48 @@
 import base64
 
+from algosdk import abi
+
 from c3.signing.types import (
-    OrderData,
     RequestOperation,
     SignatureRequest,
     SignatureRequestOperationId,
 )
 
+ORDER_ABI_FORMAT = "(byte,byte[32],uint64,uint64,byte,uint64,uint64,byte,uint64,uint64)"
+HEADER_ABI_FORMAT = "(byte[32],byte[32],uint64)"
 
-def encode_user_operation(request: SignatureRequest) -> bytearray:
+
+def encode_abi_value(value, encoding) -> bytes:
+    return abi.ABIType.from_string(encoding).encode(value)
+
+
+def encode_user_operation_base(request: SignatureRequest) -> bytearray:
     match request.op:
         case RequestOperation.Login:
             nonce_as_bytes = request.nonce.encode("ascii")
+
             return nonce_as_bytes
 
         case RequestOperation.Order:
+            print("\n\n Orderrequest\n", request)
             # Decode and validate account ID
             account = base64.b64decode(request.account)
             assert len(account) == 32
 
-            # Encode operation ID
-            encoded = bytearray([SignatureRequestOperationId.Settle])
+            orderABIvalue = [
+                6,
+                account,
+                request.nonce,
+                request.expires_on,
+                request.sell_slot_id,
+                request.sell_amount,
+                request.max_sell_amount_from_pool,
+                request.buy_slot_id,
+                request.buy_amount,
+                request.max_buy_amount_to_pool,
+            ]
 
-            # Encode account ID
-            encoded.extend(account)
-
-            # Encode remaining fields
-            encoded.extend(request.nonce.to_bytes(8, "big", signed=False))
-            encoded.extend(request.expires_on.to_bytes(8, "big", signed=False))
-            encoded.extend(request.sell_slot_id.to_bytes(1, "big", signed=False))
-            encoded.extend(request.sell_amount.to_bytes(8, "big", signed=False))
-            encoded.extend(
-                request.max_sell_amount_from_pool.to_bytes(8, "big", signed=False)
-            )
-            encoded.extend(request.buy_slot_id.to_bytes(1, "big", signed=False))
-            encoded.extend(request.buy_amount.to_bytes(8, "big", signed=False))
-            encoded.extend(
-                request.max_buy_amount_to_pool.to_bytes(8, "big", signed=False)
-            )
-            return encoded
+            return encode_abi_value(value=orderABIvalue, encoding=ORDER_ABI_FORMAT)
 
         case RequestOperation.Borrow | RequestOperation.Lend | RequestOperation.Redeem | RequestOperation.Repay:
             # For borrow and redeem, the amount is negative(taking from the pool)
@@ -174,3 +178,31 @@ def encode_user_operation(request: SignatureRequest) -> bytearray:
             return b"".join([encoded_orders, encoded_all_orders_until])
         case _:
             raise ValueError(f"Unsupported operation: {request.op}")
+
+
+def encode_user_operation(request: SignatureRequest) -> bytearray:
+    encoded_operation = encode_user_operation_base(request)
+
+    match request.op:
+        case RequestOperation.Login | RequestOperation.Cancel:
+            # FIXME: Does this need to be base64 encoded?
+            # If not, we should probably change it on the server side
+            # for consistency.
+            return encoded_operation
+        case _:
+            headerABIvalue = [
+                base64.b64decode(request.account),
+                request.lease,
+                request.last_valid,
+            ]
+
+            encodedHeaderABIvalue = encode_abi_value(
+                value=headerABIvalue, encoding=HEADER_ABI_FORMAT
+            )
+
+            result = bytearray()
+            result.extend(b"(C3.IO)0")
+            result.extend(encodedHeaderABIvalue)
+            result.extend(encoded_operation)
+
+            return base64.b64encode(result)

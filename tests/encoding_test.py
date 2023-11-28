@@ -65,21 +65,23 @@ def test_encode_order_data():
         op=RequestOperation.Order,
         # NOTE: This is the base64 of the above address
         account=signer.base64address(),
-        sell_slot_id=42,
-        buy_slot_id=23,
-        sell_amount=10000000,
+        sell_slot_id=4,
+        buy_slot_id=3,
+        sell_amount=20283300000,
         buy_amount=10000000,
-        max_sell_amount_from_pool=10000000,
-        max_buy_amount_to_pool=10000000,
-        expires_on=1234,
-        nonce=1234,
+        max_sell_amount_from_pool=0,
+        max_buy_amount_to_pool=0,
+        expires_on=1700854080,
+        nonce=1700767680908,
+        last_valid=0,
+        lease=bytearray(32),
     )
 
-    expected_encoding = "BgOhB7/zzhC+HXDdGOdLwJln5NYwm6UNXx3chmQSVTG4AAAAAAAABNIAAAAAAAAE0ioAAAAAAJiWgAAAAAAAmJaAFwAAAAAAmJaAAAAAAACYloA="
-    actual_encoding = base64.b64encode(encode_user_operation(order_data)).decode()
+    expected_encoding = b"KEMzLklPKTADoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGA6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbgAAAGL/adJjAAAAABlYPlABAAAAAS4+pigAAAAAAAAAAADAAAAAACYloAAAAAAAAAAAA=="
+    actual_encoding = encode_user_operation(order_data)
 
-    expected_sig = "nsutxRIDOYMKmdAES/ogvlSW555S0jKcRqZtHR6MwFW1zXJ6kMZur26kdyYx89cEzD4z0iGEU2MpXvKCOUILBA=="
-    actual_sig = signer.sign_message(base64.b64decode(actual_encoding))
+    expected_sig = "0uxPCObZiyvOmj/0/N0oZycgeo/Zz8LX/km451mu8LpQitJB3yGuR5q/iGI7Xjj/sC6096pV0vqFoEFN8QpyAA=="
+    actual_sig = signer.sign_message(actual_encoding)
 
     print("ORDER DATA", order_data)
     print("ENCODED", actual_encoding)
