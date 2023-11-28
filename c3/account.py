@@ -46,7 +46,6 @@ class Account(ApiClient):
     def getBalance(self):
         return self.get(f"v1/accounts/{self.accountId}/balance")
 
-    # FIX ME
     def submitOrder(self, orderParams: Dict[str, Any]):
         """
         Create an order.
@@ -157,15 +156,13 @@ class Account(ApiClient):
             max_buy_amount_to_pool=orderData["max_borrow"],
             expires_on=expires_on,
             nonce=order_nonce,
-
             # NOTE: For orders, these should be zero
             last_valid=0,
             lease=bytearray(32),
         )
 
         encoded_order = encode_user_operation(order_signature_request)
-        signature = self.signer.sign_message(bytes(encoded_order))
-        print("signature", signature)
+        signature = self.signer.sign_message(encoded_order)
 
         orderData["creator"] = self.address
         orderData["sentTime"] = int(time.time())
