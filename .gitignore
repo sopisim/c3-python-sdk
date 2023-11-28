@@ -162,7 +162,7 @@ cython_debug/
 
 
 # Local testing
-test_local.py
+*test_local.py
 _scratch/
 
 # Ignore generated folder
