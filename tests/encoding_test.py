@@ -20,7 +20,9 @@ from c3.signing.types import (
     XChainAddress,
 )
 
-signer = AlgorandMessageSigner(base64.b64encode(bytes(range(32))))
+signer = AlgorandMessageSigner(
+    "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuA=="
+)  # derived from master key = base64.b64encode(bytes(range(32)))
 print("Created signer with address " + signer.address())
 print()
 
@@ -95,16 +97,18 @@ def test_encode_order_data():
 def test_encode_cancel():
     cancel_data = CancelSignatureRequest(
         op=RequestOperation.Cancel,
-        user="C3_AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4CJ7TS",
-        creator="AOQQPP7TZYIL4HLQ3UMOOS6ATFT6JVRQTOSQ2XY53SDGIESVGG4MPFYUMQ",
-        all_orders_until=12341234,
+        all_orders_until=1861920000000,
     )
 
-    expected_encoding = b"12341234"
-    actual_encoding = base64.b64encode(encode_user_operation(cancel_data))
+    expected_encoding = b"\xd7\xce\xb5\xf7m4\xd3M4"
+    actual_encoding = encode_user_operation(cancel_data)
 
-    expected_sig = "7aG4bPe9O0fuCF7ln/l49D8zoqziyKIcR4A/lz1bmdprtIfBLAgwHsaovh8D0+LKDOWoBFGIotXXvhoQUy3WDQ=="
-    actual_sig = signer.sign_message(base64.b64decode(actual_encoding))
+    expected_sig = "kVDKXg70BgR0duXq0DCaC48OjOF1DDRGp3dCiLQJQ+rKR3udPwLE78Dco5GlSWlHpcLK8x4kZfs/8JkuELxCAg=="
+    actual_sig = signer.sign_message(actual_encoding)
+
+    for i in actual_encoding:
+        print(i)
+    # exit()
 
     print("CANCEL", cancel_data)
     print("ENCODED", actual_encoding)

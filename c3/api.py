@@ -73,3 +73,26 @@ class ApiClient:
             # Handle other exceptions
             print(f"An error occurred: {e}")
         raise
+
+    def delete(self, url_path: str, payload: Any = {}) -> Any:
+        print(payload)
+        url = self.base_url + url_path
+
+        try:
+            response = self.session.delete(url, params=payload)
+            response.raise_for_status()
+
+            try:
+                return response.json()
+            except ValueError:
+                return {"error": f"Could not parse JSON: {response.text}"}
+        except HTTPError as http_err:
+            raise Exception(
+                f"HTTP Error: {http_err} - Response Text: {response.text}"
+            ) from http_err
+        except requests.RequestException as req_err:
+            print(f"A requests error occurred: {req_err}")
+            raise
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        raise
