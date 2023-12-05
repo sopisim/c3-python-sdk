@@ -167,11 +167,15 @@ def encode_user_operation_base(request: SignatureRequest) -> bytearray:
             )
 
             # If 'allOrdersUntil' is present, decode the base64 string.
-            encoded_all_orders_until = (
-                base64.b64decode(str(request.all_orders_until).encode())
-                if request.all_orders_until
-                else b""
-            )
+
+            if request.all_orders_until:
+                all_orders_until_str = str(request.all_orders_until)[:12]
+
+                encoded_all_orders_until = base64.b64decode(
+                    all_orders_until_str.encode()
+                )
+            else:
+                encoded_all_orders_until = b""
 
             # Concatenate 'encodedOrders' and 'encodedAllOrdersUntil'.
             return b"".join([encoded_orders, encoded_all_orders_until])
