@@ -5,7 +5,11 @@ from typing import Any, Dict
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation
 from c3.signing.signers import MessageSigner
-from c3.signing.types import OrderSignatureRequest, RequestOperation
+from c3.signing.types import (
+    CancelSignatureRequest,
+    OrderSignatureRequest,
+    RequestOperation,
+)
 from c3.utils.constants import Constants, MainnetConstants, get_constants
 from c3.utils.utils import amountToContract
 
@@ -215,3 +219,26 @@ class Account(ApiClient):
         )
 
         return orderResponse
+
+    def cancelMarketOrders(
+        self, marketId: str, all_orders_until: int = int(time.time() * 1000)
+    ):
+        cancelSignatureRequest = CancelSignatureRequest(
+            op=RequestOperation.Cancel,
+            all_orders_until=all_orders_until,
+        )
+
+        encoded_cancel = encode_user_operation(cancelSignatureRequest)
+        signature = self.signer.sign_message(encoded_cancel)
+
+        cancelPayload = {
+            "signature": signature,
+            "allOrdersUntil": all_orders_until,
+            "creator": self.address,
+        }
+
+        cancelResponse = self.delete(
+            f"v1/accounts/{self.accountId}/markets/{marketId}/orders", cancelPayload
+        )
+
+        return cancelResponse
