@@ -1,9 +1,12 @@
+import base64
 import time
 from decimal import Decimal
 from typing import Any, Dict
 
+from Crypto.Hash import SHA512
+
 from c3.api import ApiClient
-from c3.signing.encode import encode_user_operation
+from c3.signing.encode import encode_user_operation, encode_user_operation_base
 from c3.signing.signers import MessageSigner
 from c3.signing.types import (
     CancelSignatureRequest,
@@ -46,6 +49,16 @@ class Account(ApiClient):
                 "Authorization": f"Bearer {self.apiToken}",
             }
         )
+
+    def generateOrderId(self, order_signature_request: OrderSignatureRequest):
+        encodedOrder = encode_user_operation_base(order_signature_request)
+
+        hash_obj = SHA512.new(truncate="256")
+        hash_obj.update(encodedOrder)
+        hashed_data = hash_obj.digest()
+
+        orderId = base64.b64encode(hashed_data).decode("utf-8")
+        return orderId
 
     def getBalance(self):
         return self.get(f"v1/accounts/{self.accountId}/balance")
