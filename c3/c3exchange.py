@@ -27,7 +27,13 @@ class C3Exchange(ApiClient):
             marketsInfo if marketsInfo is not None else self._getMarkets()
         )
 
-    def login(self, signer: MessageSigner, chainId: int = None) -> Account:
+    def login(
+        self,
+        signer: MessageSigner,
+        chainId: int = None,
+        primaryAccountId: str = None,
+        primaryAccountAddress: str = None,
+    ) -> Account:
         """Auth to C3 Exchange
 
         Args:
@@ -57,10 +63,15 @@ class C3Exchange(ApiClient):
             "v1/login/complete",
             {"chainId": chainId, "address": address, "signature": signature},
         )
+        # to-do also pass the base64address of the primary account for signing operations
+        if primaryAccountId and primaryAccountAddress:
+            accountId = primaryAccountId
+        else:
+            accountId = loginCompleteResponse["accountId"]
 
         return Account(
             signer=signer,
-            accountId=loginCompleteResponse["accountId"],
+            accountId=accountId,
             apiToken=loginCompleteResponse["token"],
             instrumentsInfo=self.instrumentsInfo,
             marketsInfo=self.marketsInfo,
