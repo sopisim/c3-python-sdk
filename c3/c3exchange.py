@@ -66,6 +66,8 @@ class C3Exchange(ApiClient):
         # to-do also pass the base64address of the primary account for signing operations
         if primaryAccountId and primaryAccountAddress:
             accountId = primaryAccountId
+            primaryAccountAddress = primaryAccountAddress
+
         else:
             accountId = loginCompleteResponse["accountId"]
 
@@ -77,6 +79,7 @@ class C3Exchange(ApiClient):
             marketsInfo=self.marketsInfo,
             base_url=self.base_url,
             constants=self.Constants,
+            primaryAccountAddress=primaryAccountAddress,
         )
 
     def _getInstruments(self) -> Dict[str, Any]:

@@ -7,7 +7,7 @@ from Crypto.Hash import SHA512
 
 from c3.api import ApiClient
 from c3.signing.encode import encode_user_operation, encode_user_operation_base
-from c3.signing.signers import MessageSigner
+from c3.signing.signers import MessageSigner, base64address
 from c3.signing.types import (
     CancelSignatureRequest,
     OrderSignatureRequest,
@@ -27,12 +27,18 @@ class Account(ApiClient):
         apiToken: str = None,
         base_url: str = MainnetConstants.API_URL,
         constants: Constants = None,
+        primaryAccountAddress: str = None,
     ):
         super().__init__(base_url)
 
         self.accountId = accountId
         self.signer = signer
-        self.base64address = signer.base64address()
+        # Set base64address based on the presence of primaryAccountAddress (delegation mode)
+        self.base64address = (
+            base64address(primaryAccountAddress)
+            if primaryAccountAddress
+            else signer.base64address()
+        )
         self.address = signer.address()
 
         self.base_url = base_url
