@@ -9,6 +9,49 @@ from c3.signing.encode import encode_user_operation_base
 from c3.signing.types import SettlementTicket
 
 
+# Utility function for base64address
+def base64address(address: str) -> bytes:
+    """
+    Encodes an address into its base64 representation.
+    Automatically detects whether it's an Algorand or EVM address.
+
+    Args:
+        address (str): The blockchain address to encode.
+
+    Returns:
+        bytes: The base64 encoded address.
+    """
+
+    def is_ethereum_address(addr: str) -> bool:
+        """Checks if the address is an Ethereum address."""
+        return (
+            addr.startswith("0x") and len(addr) == 42
+        )  # Ethereum addresses are 42 characters long including '0x'
+
+    def is_algorand_address(addr: str) -> bool:
+        """Checks if the address is an Algorand address."""
+        try:
+            # Attempt to decode as an Algorand address.
+            util.encoding.decode_address(addr)
+            return True
+        except (ValueError, TypeError, binascii.Error, AttributeError):
+            return False
+
+    if is_ethereum_address(address):
+        address = address[2:]  # Strip '0x'
+        bytes_address = binascii.unhexlify(address)
+        bytes_address = (
+            bytes(32 - len(bytes_address)) + bytes_address
+        )  # Pad for Ethereum
+
+    elif is_algorand_address(address):
+        bytes_address = util.encoding.decode_address(address)
+    else:
+        raise ValueError("Unsupported or unrecognized address type.")
+
+    return base64.b64encode(bytes_address)
+
+
 class MessageSigner(ABC):
     @abstractmethod
     def address(self) -> str:
@@ -45,19 +88,9 @@ class AlgorandMessageSigner(MessageSigner):
         return account.address_from_private_key(self.private_key)
 
     def base64address(self) -> bytes:
-        """Decodes address decoded into bytes.
-            Smart Contract uses this format to represent addresses.
-
-        Returns:
-            bytes: address decoded into bytes
-        """
-        bytesAddress = util.encoding.decode_address(
-            account.address_from_private_key(self.private_key)
-        )
-
-        base64address = base64.b64encode(bytesAddress)
-
-        return base64address
+        """Encodes Algorand address into base64."""
+        address = self.address()
+        return base64address(address)
 
     def sign_message(self, message: bytes) -> str:
         return util.sign_bytes(message, self.private_key)
@@ -80,27 +113,9 @@ class EVMMessageSigner(MessageSigner):
         return Account.from_key(self.private_key).address
 
     def base64address(self) -> bytes:
-        """Decodes address decoded into bytes.
-            Smart Contract uses this format to represent addresses.
-
-        Returns:
-            bytes: address decoded into bytes
-        """
-
-        def _pad_left_uint8_array(value: bytes, total_length: int) -> bytes:
-            if len(value) > total_length:
-                raise ValueError(
-                    f"Invalid value length, expected {total_length} but received {len(value)}"
-                )
-            return bytes(total_length - len(value)) + value
-
-        def decode_ethereum_address(ethereum_address: str) -> bytes:
-            if ethereum_address.startswith("0x"):
-                ethereum_address = ethereum_address[2:]
-            return _pad_left_uint8_array(binascii.unhexlify(ethereum_address), 32)
-
-        base64address = base64.b64encode(decode_ethereum_address(self.address()))
-        return base64address
+        """Encodes Ethereum address into base64."""
+        address = self.address()
+        return base64address(address)
 
     def sign_message(self, message: bytes) -> str:
         msg = messages.encode_defunct(message)
