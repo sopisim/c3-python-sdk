@@ -106,10 +106,6 @@ def test_encode_cancel():
     expected_sig = "kVDKXg70BgR0duXq0DCaC48OjOF1DDRGp3dCiLQJQ+rKR3udPwLE78Dco5GlSWlHpcLK8x4kZfs/8JkuELxCAg=="
     actual_sig = signer.sign_message(actual_encoding)
 
-    for i in actual_encoding:
-        print(i)
-    # exit()
-
     print("CANCEL", cancel_data)
     print("ENCODED", actual_encoding)
     print("SIGNATURE", actual_sig)
