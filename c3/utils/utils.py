@@ -4,5 +4,5 @@ from decimal import Decimal, getcontext
 getcontext().prec = 20
 
 
-def amountToContract(inputAmount: str, asaDecimals: int) -> str:
+def amountToContract(inputAmount: str, asaDecimals: int) -> int:
     return int(Decimal(inputAmount) * (10**asaDecimals))
