@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
 from typing import Dict, TypeAlias
 
-AccountId: TypeAlias = (
+AddressBytes: TypeAlias = (
     str  # NOTE: This is the address in bytes. check decode_address function
 )
 Address: TypeAlias = str  # NOTE: we3 address
@@ -20,7 +20,7 @@ LeaseValue: TypeAlias = (
 
 @dataclass
 class OrderData:
-    account: AccountId
+    account: AddressBytes
     sell_slot_id: SlotId
     buy_slot_id: SlotId
     sell_amount: ContractAmount
@@ -33,7 +33,7 @@ class OrderData:
 
 @dataclass
 class SettlementTicket(OrderData):
-    creator: AccountId
+    creator: AddressBytes
     signature: Signature
 
 
@@ -78,7 +78,7 @@ class SignatureRequest:
 
 @dataclass
 class SignatureRequestSingleAsset(SignatureRequest):
-    account: AccountId
+    account: AddressBytes
     slot_id: SlotId
     amount: ContractAmount
 
@@ -117,7 +117,7 @@ class RepaySignatureRequest(SignatureRequestSingleAsset):
 @dataclass
 class OrderSignatureRequest(SignatureRequest):
     op: RequestOperation.Order
-    account: AccountId
+    account: AddressBytes
     sell_slot_id: SlotId
     buy_slot_id: SlotId
     sell_amount: ContractAmount
@@ -135,8 +135,8 @@ class OrderSignatureRequest(SignatureRequest):
 @dataclass
 class LiquidateSignatureRequest(SignatureRequest):
     op: RequestOperation.Liquidate
-    account: AccountId
-    target: AccountId
+    account: AddressBytes
+    target: AddressBytes
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
 
@@ -144,8 +144,8 @@ class LiquidateSignatureRequest(SignatureRequest):
 @dataclass
 class DelegateSignatureRequest(SignatureRequest):
     op: RequestOperation.Delegate
-    account: AccountId
-    delegate: AccountId
+    account: AddressBytes
+    delegate: AddressBytes
     creation: Timestamp
     expiration: Timestamp
 
@@ -153,8 +153,8 @@ class DelegateSignatureRequest(SignatureRequest):
 @dataclass
 class AccountMoveSignatureRequest(SignatureRequest):
     op: RequestOperation.AccountMove
-    account: AccountId
-    target: AccountId
+    account: AddressBytes
+    target: AddressBytes
     pool: Dict[SlotId, ContractAmount]
     cash: Dict[SlotId, ContractAmount]
 
