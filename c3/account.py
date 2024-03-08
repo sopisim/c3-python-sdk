@@ -115,9 +115,11 @@ class Account(ApiClient):
             "type": orderParams["type"],
             "side": orderParams["side"],
             "amount": orderParams["amount"],
-            "price": orderParams["price"]
-            if orderParams["type"] == "limit" and "price" in orderParams
-            else None,
+            "price": (
+                orderParams["price"]
+                if orderParams["type"] == "limit" and "price" in orderParams
+                else None
+            ),
         }
 
         if orderData["side"] == "buy":
@@ -258,6 +260,27 @@ class Account(ApiClient):
 
         cancelResponse = self.delete(
             f"v1/accounts/{self.accountId}/markets/{marketId}/orders", cancelPayload
+        )
+
+        return cancelResponse
+
+    def cancelOrders(self, orderIds: list):
+        cancelSignatureRequest = CancelSignatureRequest(
+            op=RequestOperation.Cancel,
+            orders=orderIds,
+        )
+
+        encoded_cancel = encode_user_operation(cancelSignatureRequest)
+        signature = self.signer.sign_message(encoded_cancel)
+
+        cancelPayload = {
+            "signature": signature,
+            "orders": orderIds,
+            "creator": self.address,
+        }
+
+        cancelResponse = self.delete(
+            f"v1/accounts/{self.accountId}/orders", cancelPayload
         )
 
         return cancelResponse

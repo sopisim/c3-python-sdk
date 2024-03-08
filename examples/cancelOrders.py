@@ -6,4 +6,10 @@ c3Client = C3Exchange(base_url=TestnetConstants.API_URL)
 signerEVM = EVMMessageSigner("private_key")
 ethAccount = c3Client.login(signer=signerEVM)
 
+
+cancelOrderIdResponse = ethAccount.cancelOrders(
+    orderIds=["amC2aXF4ETaXaeAV9mwJ24GDhdxlmXvqh/vCRolDvtI="]
+)
+
+
 cancelResponse = ethAccount.cancelMarketOrders(marketId="AVAX-USDC")
