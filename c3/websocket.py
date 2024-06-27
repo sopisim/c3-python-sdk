@@ -153,7 +153,7 @@ class WebSocketClient:
     async def run_websocket_client(self):
         params = {"accountId": self.account_id, "token": self.jwt_token}
         query_string = urlencode(params)
-        uri = urljoin(self.url.replace("http", "ws"), "/v1/ws?" + query_string)
+        uri = urljoin(self.url.replace("http", "ws"), "/ws/v1?" + query_string)
         reconnect_delay = 5
         while True:
             try:
